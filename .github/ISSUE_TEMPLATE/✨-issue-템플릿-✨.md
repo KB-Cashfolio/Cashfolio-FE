@@ -1,7 +1,7 @@
 ---
 name: "✨ Issue 템플릿 ✨"
 about: Issue 템플릿입니다.
-title: "[Feature, Bug, ...etc]"
+title: "✨[Feat] 과자 먹기 페이지 구현"
 labels: ''
 assignees: ''
 
