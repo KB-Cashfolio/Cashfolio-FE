@@ -1,83 +1,40 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import GlobalNavigationBar from './components/GlobalNavigationBar.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div>
+    <GlobalNavigationBar />
+  </div>
 
-    <div class="wrapper">
-      <HelloWorld msg="Project init" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <main class="content">
+    <RouterView />
+  </main>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style>
+body {
+  margin: 0;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
+/* 전체 배경 (PC에서 보이는 배경) */
+#app {
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  min-width: 320px;
+  max-width: 480px; /* 모바일 최대 너비 제한 (보통 420px ~ 480px) */
+  min-height: 100dvh; /* 화면 높이 꽉 채우기 (dvh 사용 권장) */
+  background-color: rgb(255, 222, 255); /* 실제 모바일 앱의 배경색 */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05); /* PC에서 경계선 구분 */
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.content {
+  display: flex;
+  flex: 1; /* 나머지 공간을 다 채움 */
 }
 </style>
