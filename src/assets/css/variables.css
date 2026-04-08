@@ -1,0 +1,21 @@
+:root {
+  /* Brand Colors */
+  --color-primary: #795548;
+  --color-primary-dark: #5d4037;
+  --color-primary-alpha: rgba(121, 85, 72, 0.1);
+
+  /* System Colors */
+  --color-bg: #f8fafc;
+  --color-white: #ffffff;
+  --color-error: #ef4444;
+  --color-text-main: #1e293b;
+  --color-text-sub: #64748b;
+  --color-text-guide: #94a3b8;
+  --color-border: #e2e8f0;
+
+  /* Layout */
+  --radius-xl: 30px;
+  --radius-md: 12px;
+  --shadow-sm: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --max-width-mobile: 480px;
+}
