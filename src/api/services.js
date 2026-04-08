@@ -23,6 +23,13 @@ export const userService = {
   },
 }
 
+export const accountService = {
+  // 특정 유저의 ID로 연결된 계좌들을 가져옴 (Query String 활용)
+  getAccountsByUserId(userId) {
+    return api.get(`/accounts?user_id=${String(userId)}`)
+  },
+}
+
 // 캐릭터 관련 서비스
 export const characterService = {
   // 경험치 증가 (POST /character/exp-inc/:id)

@@ -1,19 +1,13 @@
 import { defineStore } from 'pinia'
-import { userService, characterService } from '@/api/services' // 경로 확인!
+import { userService, accountService, characterService } from '@/api/services' // 경로 확인!
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
     // 서버 연결 전 보여줄 목업(Mock) 데이터
-    user: {
-      user_id: 1024,
-      username: '절약꿈나무(목업)',
-      email: 'mockup@example.com',
-      beg_level: 1,
-      current_exp: 10,
-      total_income: 3000000,
-      total_expense: 1000000,
-    },
+    user: null,
+    accounts: [], // 🆕 계좌 목록을 담을 배열 추가
     loading: false,
+    currentUserId: 'a1', // 🆕 기본값을 'a1'으로 두되, 나중에 로그인 시 변경 가능
   }),
 
   actions: {
@@ -21,14 +15,21 @@ export const useProfileStore = defineStore('profile', {
     async fetchUserProfile(userId) {
       this.loading = true
       try {
-        // 서버 연결 시도 (json-server가 켜져 있어야 함)
-        const response = await userService.getUser(userId)
-        if (response.data) {
-          this.user = response.data // 연결 성공 시 서버 데이터로 교체
-        }
+        // 1. 유저 정보와 계좌 정보를 동시에 호출
+        const targetId = String(userId || this.currentUserId)
+
+        const [userRes, accountsRes] = await Promise.all([
+          userService.getUser(targetId),
+          accountService.getAccountsByUserId(targetId),
+        ])
+
+        this.user = userRes.data
+        this.accounts = accountsRes.data // 🆕 받아온 계좌 배열 저장
+        this.currentUserId = targetId // 성공 시 현재 ID 업데이트
+
+        console.log('불러온 계좌 정보:', this.accounts) // 확인용
       } catch (err) {
-        console.error('데이터 로드 실패')
-        // 에러가 나도 state의 초기 목업 데이터는 유지됨
+        console.error('데이터 로드 실패:', err)
       } finally {
         this.loading = false
       }
@@ -40,7 +41,7 @@ export const useProfileStore = defineStore('profile', {
 
       const newExp = Math.min(this.user.current_exp + amount, 100)
       try {
-        const response = await userService.updateUser(userId, {
+        const response = await userService.updateAccount(userId, {
           current_exp: newExp,
         })
         this.user = response.data
