@@ -4,20 +4,44 @@
       <h3 class="modal-title">빠른 거래 추가</h3>
 
       <div class="input-group">
-        <label>항목명</label>
-        <input v-model="newTx.title" placeholder="예: 점심 식사, 급여" />
+        <div class="field">
+          <label>항목명</label>
+          <input v-model="newTx.title" placeholder="예: 점심 식사" />
+        </div>
 
-        <label>금액</label>
-        <input v-model.number="newTx.amount" type="number" placeholder="금액을 입력하세요" />
+        <div class="field">
+          <label>금액</label>
+          <input v-model.number="newTx.amount" type="number" placeholder="금액 입력" />
+        </div>
 
-        <label>구분</label>
-        <select v-model="newTx.type">
-          <option value="expense">지출 (-)</option>
-          <option value="income">수입 (+)</option>
-        </select>
+        <div class="field">
+          <label>구분</label>
+          <select v-model="newTx.type">
+            <option value="expense">지출 (-)</option>
+            <option value="income">수입 (+)</option>
+          </select>
+        </div>
 
-        <label>카테고리</label>
-        <input v-model="newTx.category" placeholder="예: 식비, 교통" />
+        <div class="input-row">
+          <div class="field">
+            <label>은행명</label>
+            <input v-model="newTx.bank" placeholder="은행" />
+          </div>
+          <div class="field">
+            <label>계좌번호</label>
+            <input v-model="newTx.acc_num" placeholder="번호 입력" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>카테고리</label>
+          <input v-model="newTx.category" placeholder="예: 식비, 교통" />
+        </div>
+
+        <div class="field">
+          <label>메모</label>
+          <input v-model="newTx.memo" placeholder="상세 내용" />
+        </div>
       </div>
 
       <div class="modal-btns">
@@ -45,18 +69,23 @@ const newTx = reactive({
 const onSave = async () => {
   if (!newTx.title || newTx.amount <= 0) return alert('내용을 입력해주세요!')
 
-  await store.addTransaction({
-    memo: newTx.title, 
+  const isSuccess = await store.addTransaction({
+    memo: newTx.title,
     amount: newTx.amount,
     category: newTx.category,
-    inandout_id: newTx.type === 'income' ? 'in' : 'out', 
-    user_id: '0001', // 유저 ID (JSON에 있는 값)
-    date: new Date().toISOString().split('T')[0], 
+    inandout_id: newTx.type === 'income' ? 'in' : 'out',
+    bank_name: newTx.bank,
+    account_number: newTx.acc_num,
+    detail_memo: newTx.memo,
   })
 
-  newTx.title = ''
-  newTx.amount = 0
-  emit('close')
+  if (isSuccess) {
+    newTx.title = ''
+    newTx.amount = 0
+    emit('close')
+  } else {
+    alert('거래 저장에 실패했습니다.')
+  }
 }
 </script>
 
@@ -79,63 +108,95 @@ const onSave = async () => {
   background: white;
   width: 90%;
   max-width: 380px;
-  padding: 28px;
+  padding: 24px; /* 살짝 줄임 */
   border-radius: 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .modal-title {
-  margin: 0 0 20px;
-  font-size: 20px;
+  margin: 0 0 16px;
+  font-size: 18px;
   font-weight: 800;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 10px; /* 필드 간 간격 */
+  margin-bottom: 20px;
 }
 
-.input-group label {
-  font-size: 12px;
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 11px;
   font-weight: 700;
   color: #64748b;
-  margin-top: 8px;
+  margin-left: 4px;
 }
 
 .input-group input,
 .input-group select {
-  padding: 14px;
+  padding: 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  font-size: 15px;
+  border-radius: 14px;
+  font-size: 14px;
   background: #f8fafc;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding-right: 36px !important;
+
+  background-repeat: no-repeat;
+
+  background-position: right 16px center;
+  background-size: 14px;
+}
+
+.input-group select::-ms-expand {
+  display: none;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 8px;
 }
 
 .modal-btns {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+}
+
+.btn-cancel,
+.btn-save {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
 }
 
 .btn-cancel {
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: 18px;
-  font-weight: 700;
   background: #f1f5f9;
-  cursor: pointer;
+  color: #64748b;
 }
 
 .btn-save {
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: 18px;
-  font-weight: 700;
   background: #0f172a;
   color: white;
-  cursor: pointer;
 }
 </style>

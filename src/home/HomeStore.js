@@ -53,10 +53,10 @@ export const useHomeStore = defineStore('Home', () => {
 
   const addTransaction = async (newTx) => {
     const loginUserId = getLoginUserId()
-    if (!loginUserId) {
-      alert('로그인이 필요한 서비스입니다.')
-      return false
-    }
+    // if (!loginUserId) {
+    //   alert('로그인이 필요한 서비스입니다.')
+    //   return false
+    // }
 
     try {
       const payload = {

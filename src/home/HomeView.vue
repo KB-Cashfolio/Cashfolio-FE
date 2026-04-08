@@ -106,10 +106,12 @@ const isModalOpen = ref(false)
 const handleQuickAdd = () => {
   const loginUserId = localStorage.getItem('user_id')
 
-  if (!loginUserId) {
-    alert('로그인이 필요한 서비스입니다.')
-    return
-  }
+  // 화면 구성 확인을 위해 주석 처리함
+
+  //   if (!loginUserId) {
+  //     alert('로그인이 필요한 서비스입니다.')
+  //     return
+  //   }
 
   isModalOpen.value = true
 }
