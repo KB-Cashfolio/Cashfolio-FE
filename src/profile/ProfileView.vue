@@ -247,7 +247,7 @@ h1 { font-size: 24px; margin: 0; }
           </div>
           <div class="info-row">
             <span class="label">회원번호</span>
-            <span class="value">#{{ profileStore.user.user_id }}</span>
+            <span class="value">#{{ profileStore.user.id }}</span>
           </div>
         </div>
       </section>
@@ -256,7 +256,7 @@ h1 { font-size: 24px; margin: 0; }
     </div>
     <div v-else class="error-state">
       <p>프로필 정보를 가져올 수 없습니다.</p>
-      <button @click="profileStore.fetchUserProfile(1024)" class="retry-btn">다시 시도</button>
+      <button @click="profileStore.fetchUserProfile('0001')" class="retry-btn">다시 시도</button>
     </div>
   </div>
 </template>
@@ -285,7 +285,7 @@ const handleLogout = () => {
 
 onMounted(() => {
   // 컴포넌트 로드 시 1024번 유저 정보 호출 (db.json 기준)
-  profileStore.fetchUserProfile(1024)
+  profileStore.fetchUserProfile('0001')
 })
 </script>
 
