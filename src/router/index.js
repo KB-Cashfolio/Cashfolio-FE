@@ -3,8 +3,8 @@ import HomeView from '@/home/HomeView.vue'
 import TransactionHistoryView from '@/transaction-history/TransactionHistoryView.vue'
 import ProfileView from '@/profile/ProfileView.vue'
 import LoginView from '@/login/LoginView.vue'
-import RegistarView from '@/login/registar/RegistarView.vue'
-import StepperForm from '@/login/registar/StepperForm.vue'
+import RegisterView from '@/login/register/RegisterView.vue'
+import StepperForm from '@/login/register/StepperForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,13 +26,13 @@ const router = createRouter({
     },
     {
       path: '/login',
-      name: 'logine',
+      name: 'login',
       component: LoginView,
     },
     {
-      path: '/registar',
-      name: 'registar',
-      component: RegistarView,
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
     },
     {
       path: '/StepperForm',
