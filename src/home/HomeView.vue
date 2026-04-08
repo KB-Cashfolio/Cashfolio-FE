@@ -98,7 +98,7 @@ import { useHomeStore } from './HomeStore'
 
 const store = useHomeStore()
 
-const { summary, category, transactions, beggars } = storeToRefs(store)
+const { summary, transactions, beggars } = storeToRefs(store)
 const { formatCurrency, fetchHomeData } = store
 
 const isModalOpen = ref(false)
@@ -261,23 +261,20 @@ h3 {
   color: #334155;
 }
 
-.asset-grid,
-.category-grid {
+.asset-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
 }
 
-.mini-card,
-.category-card {
+.mini-card {
   background: #f8fafc;
   border-radius: 20px;
   padding: 16px;
 }
 
 .mini-card p,
-.category-name,
 .reward-title,
 .tx-meta,
 .mission-reward,
@@ -286,8 +283,7 @@ h3 {
   font-size: 13px;
 }
 
-.mini-card strong,
-.category-amount {
+.mini-card strong {
   display: block;
   margin-top: 6px;
   font-size: 18px;
@@ -335,21 +331,6 @@ h3 {
 
 .meta-row strong {
   font-size: 14px;
-}
-
-.category-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 800;
-  color: #334155;
-  margin-bottom: 12px;
 }
 
 .beggars-panel {
@@ -545,8 +526,7 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .asset-grid,
-  .category-grid {
+  .asset-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
