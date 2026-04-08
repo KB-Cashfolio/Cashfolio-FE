@@ -48,10 +48,10 @@
 
           <div class="status-wrap">
             <div class="status-item">
-              <!-- <div class="status-label-row">
+              <div class="status-label-row">
                 <span>성장 경험치</span>
                 <strong>{{ beggars.exp }}%</strong>
-              </div> -->
+              </div>
               <div class="status-track exp">
                 <div class="status-bar exp" :style="{ width: `${beggars.exp}%` }"></div>
               </div>

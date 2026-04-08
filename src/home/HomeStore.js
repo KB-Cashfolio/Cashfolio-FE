@@ -1,11 +1,6 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  timeout: 5000,
-})
+import { userService, beggarService, transactionService } from '../api/services'
 
 export const useHomeStore = defineStore('Home', () => {
   const summary = reactive({
@@ -44,7 +39,7 @@ export const useHomeStore = defineStore('Home', () => {
       }
       const [resUsers, resBeggars, resTransactions] = await Promise.all([
         api.get(userQuery),
-        api.get('/beggars'),
+        beggarService.getBeggars(),
         api.get(
           loginUserId
             ? `/transactions?user_id=${loginUserId}&_sort=id&_order=desc`
@@ -57,7 +52,7 @@ export const useHomeStore = defineStore('Home', () => {
 
       if (userData) {
         // 로그인 정보 없으면 첫 번째 유저의 ID를 임시로 세팅
-        if (!loginUserId) loginUserId = Number(userData.id)
+        if (!loginUserId) loginUserId = userData.id
 
         summary.income = Number(userData.total_income ?? 0)
         summary.expense = Number(userData.total_expense ?? 0)
@@ -89,7 +84,7 @@ export const useHomeStore = defineStore('Home', () => {
       // 테스트 : 첫번째 유저로 강제 지정
       if (!loginUserId) {
         console.warn('로그인 정보가 없어 임시 유저(1)로 테스트를 진행합니다.')
-        loginUserId = 1
+        loginUserId = 'user-001'
       }
 
       const payload = {
