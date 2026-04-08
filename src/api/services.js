@@ -43,7 +43,7 @@ export const characterService = {
 export const transactionService = {
   // 특정 사용자의 모든 거래 내역
   getTransactions(userId) {
-    return api.get(`/transactions?user_id=${userId}`)
+    return api.get(`/transactions?user_id=${userId}&_sort=id&_order=desc`)
   },
   // 지출/수입 내역 추가
   addTransaction(data) {

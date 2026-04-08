@@ -6,7 +6,7 @@
           <p class="eyebrow">Budget Mate</p>
           <h1>{{ currentMonthLabel }}</h1>
         </div>
-        <button class="quick-btn" @click="isModalOpen = true">+</button>
+        <button class="quick-btn" @click="handleQuickAdd">+</button>
       </header>
 
       <QuickAddModal v-if="isModalOpen" @close="isModalOpen = false" />
@@ -102,6 +102,17 @@ const { summary, category, transactions, beggars } = storeToRefs(store)
 const { formatCurrency, fetchHomeData } = store
 
 const isModalOpen = ref(false)
+
+const handleQuickAdd = () => {
+  const loginUserId = localStorage.getItem('user_id')
+
+  if (!loginUserId) {
+    alert('로그인이 필요한 서비스입니다.')
+    return
+  }
+
+  isModalOpen.value = true
+}
 
 const currentMonthLabel = computed(() => {
   const now = new Date()
