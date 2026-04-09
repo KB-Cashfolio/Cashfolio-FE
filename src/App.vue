@@ -1,9 +1,18 @@
 <script setup>
 import GlobalNavigationBar from './components/GlobalNavigationBar.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+
+// 네비게이션 바를 숨기고 싶은 페이지 이름 리스트
+const hideNavRoutes = ['login', 'register'] // router/index.js에 설정한 name 기준
+
+// 현재 페이지가 hideNavRoutes에 포함되지 않을 때만 true
+const showNavbar = computed(() => !hideNavRoutes.includes(route.name))
 </script>
 
 <template>
-  <div>
+  <div v-if="showNavbar">
     <GlobalNavigationBar />
   </div>
 

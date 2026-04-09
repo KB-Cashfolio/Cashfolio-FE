@@ -15,12 +15,12 @@
           <input
             type="email"
             id="email"
-            v-model="loginData.email"
+            v-model="loginForm.email"
             placeholder="example@mail.com"
-            :class="{ 'error-border': errors.email, shake: shakeFields.email }"
-            @blur="validateField('email')"
+            :class="{ 'error-border': loginErrors.email, shake: loginShake.email }"
+            @blur="auth.validateLogin('email')"
           />
-          <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
+          <p v-if="loginErrors.email" class="error-text">{{ loginErrors.email }}</p>
         </div>
 
         <div class="input-group">
@@ -28,17 +28,17 @@
           <input
             type="password"
             id="password"
-            v-model="loginData.password"
+            v-model="loginForm.password"
             placeholder="비밀번호를 입력하세요"
-            :class="{ 'error-border': errors.password, shake: shakeFields.password }"
-            @blur="validateField('password')"
+            :class="{ 'error-border': loginErrors.password, shake: loginShake.password }"
+            @blur="auth.validateLogin('password')"
           />
-          <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
+          <p v-if="loginErrors.password">{{ loginErrors.password }}</p>
         </div>
 
         <div class="form-options">
           <label class="remember-me">
-            <input type="checkbox" v-model="loginData.remember" />
+            <input type="checkbox" v-model="loginForm.remember" />
             로그인 유지
           </label>
           <a href="#" class="find-pw">비밀번호 찾기</a>
@@ -59,7 +59,7 @@
           <button class="social-btn apple">A</button>
         </div>
         <p class="signup-prompt">
-          아직 거지가 아니신가요? <router-link to="/registar">회원가입</router-link>
+          아직 거지가 아니신가요? <router-link to="/register">회원가입</router-link>
         </p>
       </footer>
     </div>
@@ -67,79 +67,23 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/login/register/RegisterStore'
 
+const auth = useAuthStore()
 const router = useRouter()
-const isLoading = ref(false)
 
-const loginData = reactive({
-  email: '',
-  password: '',
-  remember: false,
-})
-
-// 에러 메시지 및 흔들림 상태
-const errors = reactive({
-  email: '',
-  password: '',
-})
-
-const shakeFields = reactive({
-  email: false,
-  password: false,
-})
-
-const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-
-// 개별 필드 검증
-const validateField = (field) => {
-  let isValid = true
-  errors[field] = ''
-
-  if (field === 'email') {
-    if (!loginData.email) {
-      errors.email = '이메일을 입력해주세요.'
-      isValid = false
-    } else if (!emailPattern.test(loginData.email)) {
-      errors.email = '유효한 이메일 형식이 아닙니다.'
-      isValid = false
-    }
-  }
-
-  if (field === 'password' && !loginData.password) {
-    errors.password = '비밀번호를 입력해주세요.'
-    isValid = false
-  }
-
-  if (!isValid) triggerShake(field)
-  return isValid
-}
-
-const triggerShake = (field) => {
-  shakeFields[field] = true
-  setTimeout(() => {
-    shakeFields[field] = false
-  }, 500)
-}
+const { loginForm, loginErrors, loginShake, isLoading } = storeToRefs(auth)
 
 const handleLogin = async () => {
-  // 전수 검사
-  const isEmailOk = validateField('email')
-  const isPwOk = validateField('password')
+  const result = await auth.login()
 
-  if (!isEmailOk || !isPwOk) return
-
-  isLoading.value = true
-
-  try {
-    console.log('로그인 시도:', loginData)
-    setTimeout(() => {
-      router.push('/')
-      isLoading.value = false
-    }, 1000)
-  } catch (error) {
-    isLoading.value = false
+  if (result.success) {
+    alert('환영합니다!')
+    router.push('/main')
+  } else {
+    alert(result.message)
   }
 }
 </script>

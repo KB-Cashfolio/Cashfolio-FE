@@ -80,9 +80,11 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { authService } from '@/api/services'
 
 const router = useRouter()
 const currentStep = ref(1)
+const userId = ref('DB8ZwD6xk1Q')
 
 const formData = reactive({
   nickname: '',
@@ -91,14 +93,33 @@ const formData = reactive({
   dailyLimit: null,
 })
 
-const handleNext = () => {
+const handleNext = async () => {
   if (currentStep.value < 4) {
     currentStep.value++
   } else {
-    // 최종 제출 로직
-    console.log('최종 데이터:', formData)
-    alert('모든 설정이 완료되었습니다!')
-    router.push('/')
+    // 2. 최종 데이터 전송
+    try {
+      // 서버 데이터 구조에 맞게 매핑
+      const updateData = {
+        username: formData.nickname,
+        monthly_limit: formData.dailyLimit * 30, // 일별 한도를 한 달 한도로 변환 (선택)
+        total_income: formData.assets, // 초기 자산을 총 수입으로 잡거나 필드 추가
+        beg_level: 1,
+        current_exp: 0,
+      }
+
+      console.log(updateData)
+      await authService.updateUserInfo(userId.value, updateData)
+
+      // 3. 로컬 스토리지 정보도 최신화 (선택)
+      const currentUser = JSON.parse(localStorage.getItem('user'))
+      localStorage.setItem('user', JSON.stringify({ ...currentUser, ...updateData }))
+
+      alert('거지 생활 준비 완료! 탈출을 응원합니다.')
+      router.push('/') // 메인 대시보드로 이동
+    } catch (error) {
+      alert('데이터 저장 중 오류가 발생했습니다.')
+    }
   }
 }
 </script>
