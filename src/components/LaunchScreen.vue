@@ -1,5 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import img1 from '@/assets/img/lv1.webp'
+import img2 from '@/assets/img/lv2.webp'
+import img3 from '@/assets/img/lv3.webp'
+import img4 from '@/assets/img/lv4.webp'
+import img5 from '@/assets/img/lv5.webp'
 
 // 로딩 완료 이벤트를 부모 컴포넌트(App.vue)로 전달하기 위해 정의
 const emit = defineEmits(['complete'])
@@ -8,8 +13,7 @@ const emit = defineEmits(['complete'])
 const phase = ref('logo') // 'logo' (페이드인) -> 'sequence' (이미지 순차 로딩)
 const isLogoVisible = ref(false)
 
-// public/images 폴더의 이미지 경로들
-const images = ['/lv1.webp', '/lv2.webp', '/lv3.webp', '/lv4.webp', '/lv5.webp']
+const images = [img1, img2, img3, img4, img5]
 const currentImageIndex = ref(0)
 
 onMounted(() => {
@@ -18,11 +22,11 @@ onMounted(() => {
     isLogoVisible.value = true
   }, 100)
 
-  // 2. 1.5초간 로고를 보여준 뒤 시퀀스로 전환
+  // 2. 2초간 로고를 보여준 뒤 시퀀스로 전환
   setTimeout(() => {
     phase.value = 'sequence'
     startImageSequence()
-  }, 1600)
+  }, 2000)
 })
 
 const startImageSequence = () => {
@@ -46,7 +50,7 @@ const startImageSequence = () => {
 <template>
   <div class="launch-screen">
     <div v-if="phase === 'logo'" class="logo-container" :class="{ 'fade-in': isLogoVisible }">
-      <img src="/logo.webp" alt="우아한 거지들 로고" class="logo-image" />
+      <img src="@/assets/img/logo.webp" alt="우아한 거지들 로고" class="logo-image" />
     </div>
 
     <div v-else-if="phase === 'sequence'" class="sequence-container fade-in">
