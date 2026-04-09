@@ -10,7 +10,10 @@ export const useHomeStore = defineStore('Home', () => {
   const formatCurrency = (value) =>
     value !== undefined ? `${new Intl.NumberFormat('ko-KR').format(Number(value))}원` : '0원'
 
-  const getLoginUserId = () => localStorage.getItem('user_id')
+  const getLoginUserId = () => {
+    const userData = localStorage.getItem('user')
+    return userData ? JSON.parse(userData).id : null
+  }
 
   const fetchHomeData = async () => {
     const loginUserId = getLoginUserId()
@@ -31,6 +34,7 @@ export const useHomeStore = defineStore('Home', () => {
 
       const userData = resUser.data
       if (userData) {
+        beggars.name = userData.username || '무명 거지'
         summary.income = Number(userData.total_income ?? 0)
         summary.expense = Number(userData.total_expense ?? 0)
         summary.assets = summary.income - summary.expense
@@ -41,6 +45,7 @@ export const useHomeStore = defineStore('Home', () => {
       // 캐릭터 데이터 매핑 (resCharacters.data 사용)
       const currentBeggar = resCharacters.data.find((b) => Number(b.level) === beggars.level)
       if (currentBeggar) {
+        const { name, ...otherInfo } = currentBeggar
         Object.assign(beggars, currentBeggar)
       }
 

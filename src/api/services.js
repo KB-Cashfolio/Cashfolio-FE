@@ -32,6 +32,11 @@ export const accountService = {
 
 // 캐릭터 관련 서비스
 export const characterService = {
+  // 🆕 이 함수가 빠져있어서 에러가 났던 것입니다!
+  getCharacterList() {
+    return api.get('/beggars') // db.json의 characters 데이터를 가져옵니다.
+  },
+
   // 경험치 증가 (POST /character/exp-inc/:id)
   increaseExp(id, amount) {
     // 실제 서버 구현에 따라 PATCH나 POST 선택

@@ -6,8 +6,9 @@ export const useProfileStore = defineStore('profile', {
     // 서버 연결 전 보여줄 목업(Mock) 데이터
     user: null,
     accounts: [], // 🆕 계좌 목록을 담을 배열 추가
+    character: null,
     loading: false,
-    currentUserId: 'a1', // 🆕 기본값을 'a1'으로 두되, 나중에 로그인 시 변경 가능
+    currentUserId: null, // 🆕 기본값을 'a1'으로 두되, 나중에 로그인 시 변경 가능
   }),
 
   actions: {
@@ -16,11 +17,12 @@ export const useProfileStore = defineStore('profile', {
       this.loading = true
       try {
         // 1. 유저 정보와 계좌 정보를 동시에 호출
-        const targetId = String(userId || this.currentUserId)
+        const targetId = String(userId)
 
-        const [userRes, accountsRes] = await Promise.all([
+        const [userRes, accountsRes, beggarsRes] = await Promise.all([
           userService.getUser(targetId),
           accountService.getAccountsByUserId(targetId),
+          characterService.getCharacterList(), // 엔드포인트가 /beggars로 설정된 서비스
         ])
 
         this.user = userRes.data
@@ -28,6 +30,12 @@ export const useProfileStore = defineStore('profile', {
         this.currentUserId = targetId // 성공 시 현재 ID 업데이트
 
         console.log('불러온 계좌 정보:', this.accounts) // 확인용
+
+        // 🆕 유저 레벨에 맞는 캐릭터 데이터 찾기
+        if (this.user && beggarsRes.data) {
+          const userLevel = Number(this.user.beg_level || 1)
+          this.character = beggarsRes.data.find((b) => Number(b.level) === userLevel)
+        }
       } catch (err) {
         console.error('데이터 로드 실패:', err)
       } finally {

@@ -1,297 +1,210 @@
 <template>
-  <div class="profile-page">
-    <div v-if="profileStore.loading" class="loading-state">데이터를 불러오는 중...</div>
-
-    <div v-else-if="profileStore.user" class="profile-content">
-      <section class="profile-card character-section">
-        <div class="character-header">
-          <p class="eyebrow">SAVING RANK</p>
-
-          <h2>Lv.{{ profileStore.user.beg_level }} {{ profileStore.user.username }}</h2>
+  <div class="page">
+    <div class="container">
+      <header class="header">
+        <div>
+          <p class="eyebrow">PROFILE</p>
+          <h1>내 정보 관리</h1>
         </div>
+      </header>
 
-        <div class="avatar-display">
-          <div class="avatar-circle">🧍</div>
+      <div v-if="profileStore.loading" class="loading-state">데이터를 불러오는 중...</div>
 
-          <p class="status-msg">"오늘도 절약하며 성장하고 있어요!"</p>
+      <div v-else-if="profileStore.user" class="profile-content">
+        <section class="panel">
+          <p class="character-eyebrow" style="color: #1d4ed8">SAVING RANK</p>
+          <div class="character-card" style="background: #f8fafc">
+            <div
+              class="avatar-wrap"
+              style="background: linear-gradient(180deg, #e0fffd 0%, #d4fffd 100%)"
+            >
+              <img
+                v-if="profileStore.character?.img_path"
+                :src="profileStore.character.img_path"
+                class="profile-img-inner"
+              />
+              <span v-else class="avatar">🧍</span>
+              <span class="avatar-text" style="color: #1e40af"
+                >Lv.{{ profileStore.user.beg_level }}</span
+              >
+            </div>
+
+            <div class="character-info">
+              <h3 style="margin-bottom: 4px">
+                {{ profileStore.character?.name || '' }} {{ profileStore.user.username }}
+              </h3>
+              <p class="character-desc">
+                "{{ profileStore.character?.ment || '오늘도 절약하며 성장하고 있어요!' }}"
+              </p>
+
+              <div class="status-wrap" style="margin-top: 15px">
+                <div class="status-item">
+                  <div class="status-label-row">
+                    <span>성장 경험치</span>
+                    <strong style="color: #28aeb0">{{ profileStore.user.current_exp }}%</strong>
+                  </div>
+                  <div class="status-track blue-track">
+                    <div
+                      class="status-bar blue-bar"
+                      :style="{ width: `${profileStore.user.current_exp}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section style="margin-top: 24px">
+          <div class="section-head">
+            <h3>누적 활동 기록</h3>
+          </div>
+          <div class="asset-grid">
+            <div class="mini-card">
+              <p class="label">총 수입</p>
+              <strong class="tx-amount income">{{
+                formatCurrency(profileStore.user.total_income)
+              }}</strong>
+            </div>
+            <div class="mini-card">
+              <p class="label">총 지출</p>
+              <strong class="tx-amount expense">{{
+                formatCurrency(profileStore.user.total_expense)
+              }}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section style="margin-top: 24px">
+          <div class="section-head">
+            <h3>계정 정보</h3>
+          </div>
+          <div class="transaction-list">
+            <div class="transaction-item">
+              <div class="tx-left">
+                <div class="tx-icon">👤</div>
+                <div>
+                  <p class="tx-title">아이디</p>
+                  <p class="tx-meta">{{ profileStore.user.username }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div v-for="acc in profileStore.accounts" :key="acc.id" class="transaction-item">
+              <div class="tx-left">
+                <div class="tx-icon income">🏦</div>
+                <div>
+                  <p class="tx-title">{{ acc.bank }}</p>
+                  <p class="tx-meta">{{ acc.acc_num }}</p>
+                </div>
+              </div>
+              <div class="tx-right" style="text-align: right">
+                <p class="tx-amount">{{ Number(acc.balance).toLocaleString() }}원</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px">
+          <button
+            @click="handleLogout"
+            class="quick-btn"
+            style="width: 100%; background: #e2e8f0; color: #475569; box-shadow: none"
+          >
+            로그아웃
+          </button>
         </div>
-
-        <div class="exp-container">
-          <div class="exp-label">
-            <span>성장 경험치</span>
-
-            <strong>{{ profileStore.user.current_exp }}%</strong>
-          </div>
-
-          <div class="exp-track">
-            <div class="exp-bar" :style="{ width: `${profileStore.user.current_exp}%` }"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="profile-card stats-section">
-        <h3>누적 활동 기록</h3>
-
-        <div class="stats-grid">
-          <div class="stat-item income">
-            <p>총 수입</p>
-
-            <strong>{{ formatCurrency(profileStore.user.total_income) }}</strong>
-          </div>
-
-          <div class="stat-item expense">
-            <p>총 지출</p>
-
-            <strong>{{ formatCurrency(profileStore.user.total_expense) }}</strong>
-          </div>
-        </div>
-      </section>
-
-      <section class="profile-card info-section">
-        <h3>계정 정보</h3>
-
-        <div class="info-list">
-          <div class="info-row">
-            <span class="label">아이디</span>
-
-            <span class="value">{{ profileStore.user.username }}</span>
-          </div>
-
-          <div class="info-row">
-            <span class="label">이메일</span>
-
-            <span class="value">{{ profileStore.user.email }}</span>
-          </div>
-
-          <div v-for="acc in profileStore.accounts" :key="acc.id" class="info-row">
-            <span class="label">계좌 ({{ acc.bank }})</span>
-
-            <span class="value account-text">{{ acc.acc_num }}</span>
-          </div>
-
-          <div v-if="profileStore.accounts.length === 0" class="info-row">
-            <span class="label">계좌 정보</span>
-
-            <span class="value">등록된 계좌가 없습니다.</span>
-          </div>
-        </div>
-      </section>
-
-      <button class="logout-btn" @click="handleLogout">로그아웃</button>
-    </div>
-
-    <div v-else class="error-state">
-      <p>프로필 정보를 가져올 수 없습니다.</p>
-
-      <button @click="profileStore.fetchUserProfile(profileStore.currentUserId)" class="retry-btn">
-        다시 시도
-      </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
-
 import { useRouter } from 'vue-router'
-
 import { useProfileStore } from './useProfileStore'
 
 const router = useRouter()
-
+// 🔥 템플릿에서 'profileStore'를 사용하기 위해 반드시 변수 선언!
 const profileStore = useProfileStore()
 
-const formatCurrency = (value) => `${new Intl.NumberFormat('ko-KR').format(value)}원`
+const formatCurrency = (value) =>
+  value !== undefined ? `${new Intl.NumberFormat('ko-KR').format(value)}원` : '0원'
 
 const handleLogout = () => {
   if (confirm('로그아웃 하시겠습니까?')) {
-    profileStore.user = null
-
-    profileStore.accounts = []
-
-    localStorage.removeItem('user')
-
+    profileStore.clearUser()
+    localStorage.clear()
     router.push('/login')
   }
 }
 
 onMounted(() => {
-  const savedUserId = localStorage.getItem('userId') || 'a1'
-
-  // 2. 'a1'을 직접 넣지 않고 변수를 넘김
-
-  profileStore.fetchUserProfile(savedUserId)
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    const user = JSON.parse(userData)
+    profileStore.fetchUserProfile(user.id)
+  } else {
+    router.push('/login')
+  }
 })
 </script>
 
+<style scoped src="../assets/css/transaction.css"></style>
 <style scoped>
-.profile-page {
-  width: 100%;
-
-  padding: 20px;
-
-  background-color: #ffffff; /* 핑크색 배경 가리기 */
-
-  min-height: 100dvh; /* 페이지 전체를 흰색으로 채움 */
+/* 1. 페이지 전체 배경색 변경 */
+.page {
+  background: #f9ffff !important; /* !important를 사용해 공용 설정보다 우선순위를 높입니다 */
 }
 
-/* 기존 스타일 유지 */
-
-.profile-card {
-  background: white;
-
-  border-radius: 28px;
-
-  padding: 24px;
-
-  margin-bottom: 18px;
-
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-
-  border: 1px solid #f0f0f0;
+/* 2. mini-card 및 category-card 배경색 흰색으로 변경 & 테두리 추가 */
+.mini-card,
+.transaction-item,
+.category-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0; /* profile card와 비슷한 느낌의 테두리 추가 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); /* 은은한 그림자로 입체감 부여 */
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.eyebrow {
-  font-size: 11px;
-
-  font-weight: 800;
-
-  color: #b45309;
-
-  letter-spacing: 1px;
-
-  margin-bottom: 4px;
-}
-
-h2 {
-  font-size: 22px;
-
-  font-weight: 700;
-
-  color: #1a1a1a;
-
-  margin: 0;
-}
-
-h3 {
-  font-size: 16px;
-
-  font-weight: 700;
-
-  margin-bottom: 16px;
-}
-
-.character-section {
-  background: linear-gradient(180deg, #fffbeb 0%, #fff7ed 100%);
-
-  border-color: #fde68a;
-
-  text-align: center;
-}
-
-.avatar-circle {
-  font-size: 60px;
-
-  background: white;
-
-  width: 100px;
-
-  height: 100px;
-
-  line-height: 100px;
-
-  border-radius: 50%;
-
-  margin: 0 auto 12px;
-
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
-}
-
-.exp-track {
+/* 3. 파란색 프로그레스 바 전용 스타일 (지난 대화 내용 유지) */
+.blue-track {
   height: 10px;
-
-  background: #eee;
-
-  border-radius: 10px;
-
+  background: #eff6ff;
+  border-radius: 999px;
   overflow: hidden;
 }
 
-.exp-bar {
+.blue-bar {
   height: 100%;
-
-  background: #f59e0b;
-
-  border-radius: 10px;
-
-  transition: width 0.3s ease;
+  background: #60e2dc;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.stats-grid {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 12px;
-}
-
-.stat-item {
-  padding: 16px;
-
-  border-radius: 20px;
-
-  background: #f9fafb;
-}
-
-.stat-item.income strong {
-  color: #1d4ed8;
-}
-
-.stat-item.expense strong {
-  color: #e11d48;
-}
-
-.info-row {
-  display: flex;
-
-  justify-content: space-between;
-
-  padding: 14px 0;
-
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.info-row:last-child {
-  border-bottom: none;
-}
-
-/* 계좌 정보 텍스트 강조 */
-
-.account-text {
-  color: #1d4ed8;
-
-  font-weight: 600;
-
-  font-size: 13px;
-}
-
-.logout-btn {
+.profile-img-inner {
   width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-  padding: 16px;
-
-  background: #f1f5f9;
-
-  border: none;
-
-  border-radius: 20px;
-
+.loading-state {
+  text-align: center;
+  padding: 80px 0;
   color: #64748b;
+}
 
-  font-weight: 600;
+/* 아바타 텍스트 위치 및 강조 */
+.avatar-wrap {
+  position: relative;
+  border: 2px solid #dbeafe; /* 아바타 테두리도 살짝 강조 */
+}
 
-  cursor: pointer;
-
-  margin-top: 10px;
+.avatar-text {
+  position: absolute;
+  bottom: 8px;
+  font-weight: 800;
 }
 </style>

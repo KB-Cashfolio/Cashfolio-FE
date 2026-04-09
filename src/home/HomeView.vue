@@ -104,14 +104,14 @@ const { formatCurrency, fetchHomeData } = store
 const isModalOpen = ref(false)
 
 const handleQuickAdd = () => {
-  const loginUserId = localStorage.getItem('user_id')
+  // 🆕 'user' 객체가 있는지 확인
+  const isLogin = localStorage.getItem('user')
 
-  // 화면 구성 확인을 위해 주석 처리함
-
-  //   if (!loginUserId) {
-  //     alert('로그인이 필요한 서비스입니다.')
-  //     return
-  //   }
+  if (!isLogin) {
+    alert('로그인이 필요한 서비스입니다.')
+    router.push('/login') // 로그인 페이지로 유도
+    return
+  }
 
   isModalOpen.value = true
 }
