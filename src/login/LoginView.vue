@@ -81,7 +81,7 @@ const handleLogin = async () => {
 
   if (result.success) {
     alert('환영합니다!')
-    router.push('/main')
+    router.push('/')
   } else {
     alert(result.message)
   }
