@@ -35,18 +35,53 @@ export const useProfileStore = defineStore('profile', {
       }
     },
 
-    // 경험치 증가 로직 (PATCH)
-    async increaseExp(userId, amount) {
-      if (!this.user) return
+    // useProfileStore.js 내부 actions 수정본
 
-      const newExp = Math.min(this.user.current_exp + amount, 100)
+    async updateExpBySavings(userId) {
+      if (!this.user) return
+      this.loading = true
+
       try {
-        const response = await userService.updateAccount(userId, {
-          current_exp: newExp,
-        })
-        this.user = response.data
+        const today = new Date().toISOString().split('T')[0]
+
+        // 1. 오늘 지출 내역 가져오기
+        const res = await transactionService.getTransactionsByDate(userId, today)
+        const totalSpent = res.data
+          .filter((tx) => tx.inandout_id === 'out')
+          .reduce((sum, tx) => sum + tx.amount, 0)
+
+        const goal = this.user.daily_limit || 20000 // 유저가 정한 일일 목표
+
+        if (totalSpent <= goal) {
+          // 2. 절약 비율 계산 (보상 경험치)
+          const earnedExp = Math.floor(((goal - totalSpent) / goal) * 100)
+
+          if (earnedExp > 0) {
+            let nextExp = this.user.current_exp + earnedExp
+            let nextLevel = this.user.beg_level
+
+            // 3. 레벨업 처리 (100 초과 시 다음 레벨로)
+            while (nextExp >= 100) {
+              nextLevel++
+              nextExp -= 100
+            }
+
+            // 4. 서버 업데이트
+            const response = await userService.updateAccount(targetId, {
+              current_exp: nextExp,
+              beg_level: nextLevel,
+            })
+
+            this.user = response.data
+            alert(`🎉 절약 성공! 경험치 ${earnedExp}를 획득하여 Lv.${nextLevel}이 되었습니다!`)
+          }
+        } else {
+          alert('목표 금액을 초과했어요. 내일은 좀 더 아껴볼까요? 💪')
+        }
       } catch (err) {
         console.error('경험치 업데이트 실패:', err)
+      } finally {
+        this.loading = false
       }
     },
 
