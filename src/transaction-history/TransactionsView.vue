@@ -80,9 +80,7 @@ const handleAddTransaction = async () => {
 // 수정 모드 진입
 const selectTransaction = (tx) => {
   Object.assign(form, tx)
-  // db.json 일부 데이터에 category로 들어가있는 예외 처리 (수정 시 id 부여)
-  if (tx.category && !tx.category_id) form.category_id = String(tx.category)
-  else form.category_id = String(tx.category_id)
+  form.category_id = String(tx.category_id)
   // 선택된 내역의 category_id를 바탕으로 수입/지출(selectedType) 역추산해서 맞추기
   const typeId = store.getCategoryType(form.category_id)
   if (typeId) {
@@ -96,8 +94,6 @@ const selectTransaction = (tx) => {
 
 // 수정 완료
 const handleUpdateTransaction = async () => {
-  // 수정 전 과거에 category 키워드를 썼다면 지워주고 db 스키마 통일
-  if ('category' in form) delete form.category
   await store.updateTransaction(editId.value, form)
   resetForm()
 }

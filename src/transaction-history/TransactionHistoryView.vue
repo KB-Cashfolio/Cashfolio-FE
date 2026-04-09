@@ -32,12 +32,12 @@
           </div>
           <div class="detail-row">
             <span class="label">카테고리</span
-            ><span class="badge">{{ selectedDetail.category }}</span>
+            ><span class="badge">{{ store.getCategoryName(selectedDetail.category_id) }}</span>
           </div>
           <div class="detail-row">
             <span class="label">금액</span>
-            <strong :class="selectedDetail.inandout_id === 'in' ? 'income' : 'expense'">
-              {{ selectedDetail.inandout_id === 'in' ? '+' : '-' }}
+            <strong :class="store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'">
+              {{ store.getCategoryType(selectedDetail.category_id) === '1' ? '+' : '-' }}
               {{ Number(selectedDetail.amount).toLocaleString() }}원
             </strong>
           </div>
@@ -65,16 +65,16 @@
             @click="selectedDetail = tx"
           >
             <div class="tx-left">
-              <div :class="['tx-icon', tx.inandout_id === 'in' ? 'income' : 'expense']">
-                {{ tx.inandout_id === 'in' ? '↗' : '↘' }}
+              <div :class="['tx-icon', store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+                {{ store.getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
                 <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ tx.category }} · {{ tx.date }}</div>
+                <div class="tx-meta">{{ store.getCategoryName(tx.category_id) }} · {{ tx.date }}</div>
               </div>
             </div>
-            <div :class="['tx-amount', tx.inandout_id === 'in' ? 'income' : 'expense']">
-              {{ tx.inandout_id === 'in' ? '+' : '-' }}{{ Number(tx.amount).toLocaleString() }}원
+            <div :class="['tx-amount', store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+              {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-' }}{{ Number(tx.amount).toLocaleString() }}원
             </div>
           </div>
 
@@ -181,6 +181,9 @@ async function confirmDelete() {
 
 onMounted(async () => {
   await store.fetchTransactions()
+  if (store.categories.length === 0) {
+    await store.fetchCategories()
+  }
 })
 </script>
 

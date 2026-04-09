@@ -5,8 +5,12 @@
 
       <div class="input-group">
         <div class="field">
-          <label>항목명</label>
-          <input v-model="newTx.title" placeholder="예: 점심 식사" />
+          <label>구분</label>
+          <select v-model="selectedType">
+            <option v-for="item in inandout" :key="item.id" :value="item.id">
+              {{ item.name }}
+            </option>
+          </select>
         </div>
 
         <div class="field">
@@ -15,32 +19,26 @@
         </div>
 
         <div class="field">
-          <label>구분</label>
-          <select v-model="newTx.type">
-            <option value="expense">지출 (-)</option>
-            <option value="income">수입 (+)</option>
+          <label>카테고리</label>
+          <select v-model="newTx.category_id">
+            <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
+              {{ c.name }}
+            </option>
           </select>
         </div>
 
-        <div class="input-row">
-          <div class="field">
-            <label>은행명</label>
-            <input v-model="newTx.bank" placeholder="은행" />
-          </div>
-          <div class="field">
-            <label>계좌번호</label>
-            <input v-model="newTx.acc_num" placeholder="번호 입력" />
-          </div>
-        </div>
-
         <div class="field">
-          <label>카테고리</label>
-          <input v-model="newTx.category" placeholder="예: 식비, 교통" />
+          <label>계좌</label>
+          <select v-model="newTx.account_id">
+            <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
+              {{ transactionStore.getAccountName(acc.id) }}
+            </option>
+          </select>
         </div>
 
         <div class="field">
           <label>메모</label>
-          <input v-model="newTx.memo" placeholder="상세 내용" />
+          <input v-model="newTx.memo" placeholder="상세 내용 (선택)" />
         </div>
       </div>
 
@@ -53,40 +51,82 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref, onMounted, computed, watch } from 'vue'
 import { useHomeStore } from './HomeStore'
+import { useTransactionStore } from '../transaction-history/TransactionStore'
+import { storeToRefs } from 'pinia'
 
-const store = useHomeStore()
+const homeStore = useHomeStore()
+const transactionStore = useTransactionStore()
 const emit = defineEmits(['close'])
 
+const { accounts, categories, inandout } = storeToRefs(transactionStore)
+
 const newTx = reactive({
-  title: '',
-  amount: 0,
-  type: 'expense',
-  category: '기타',
+  memo: '',
+  amount: null,
+  category_id: '',
+  account_id: '',
+})
+
+const selectedType = ref('2') // '2' for 지출 (expense)
+
+const filteredCategories = computed(() => {
+  return categories.value.filter((c) => c.type_id === selectedType.value)
+})
+
+watch(selectedType, () => {
+  const matched = filteredCategories.value
+  if (matched.length > 0) {
+    newTx.category_id = matched[0].id
+  } else {
+    newTx.category_id = ''
+  }
 })
 
 const onSave = async () => {
-  if (!newTx.title || newTx.amount <= 0) return alert('내용을 입력해주세요!')
+  if (!newTx.amount || newTx.amount <= 0) return alert('금액을 입력해주세요!')
+  if (!newTx.category_id) return alert('카테고리를 선택해주세요!')
+  if (!newTx.account_id) return alert('계좌를 선택해주세요!')
 
-  const isSuccess = await store.addTransaction({
-    memo: newTx.title,
+  const payload = {
+    memo: newTx.memo || transactionStore.getCategoryName(newTx.category_id),
     amount: newTx.amount,
-    category: newTx.category,
-    inandout_id: newTx.type === 'income' ? 'in' : 'out',
-    bank_name: newTx.bank,
-    account_number: newTx.acc_num,
-    detail_memo: newTx.memo,
-  })
+    category_id: newTx.category_id,
+    account_id: newTx.account_id,
+    inandout_id: selectedType.value === '1' ? 'in' : 'out',
+  }
+
+  const isSuccess = await homeStore.addTransaction(payload)
 
   if (isSuccess) {
-    newTx.title = ''
-    newTx.amount = 0
     emit('close')
   } else {
     alert('거래 저장에 실패했습니다.')
   }
 }
+
+onMounted(async () => {
+  if (inandout.value.length === 0) {
+    await transactionStore.fetchInAndOut()
+  }
+  if (categories.value.length === 0) {
+    await transactionStore.fetchCategories()
+  }
+  if (accounts.value.length === 0) {
+    await transactionStore.fetchAccounts()
+    await transactionStore.fetchBanks()
+  }
+
+  if (accounts.value.length > 0 && !newTx.account_id) {
+    newTx.account_id = accounts.value[0].id
+  }
+
+  // 지출이 기본값이므로 지출의 첫번째 카테고리로 설정
+  if (selectedType.value === '2' && filteredCategories.value.length > 0) {
+    newTx.category_id = filteredCategories.value[0].id
+  }
+})
 </script>
 
 <style scoped>
@@ -166,12 +206,6 @@ const onSave = async () => {
 
 .input-group select::-ms-expand {
   display: none;
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 0.7fr 1.3fr;
-  gap: 8px;
 }
 
 .modal-btns {
