@@ -1,7 +1,11 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+<<<<<<< HEAD
 import { useTransactionStore } from './TransactionStore'
+=======
+import { useTransactionStore } from '../transaction-history/TransactionStore' // 경로에 맞게 수정하세요
+>>>>>>> feature/#3-txUpdate
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 import AlertModal from '../components/AlertModal.vue'
 import { useRoute } from 'vue-router'
@@ -317,4 +321,8 @@ onMounted(async () => {
   </div>
 </template>
 
+<<<<<<< HEAD
 <style scoped src="@/assets/css/transaction.css"></style>
+=======
+<style scoped src="../assets/css/transaction.css"></style>
+>>>>>>> feature/#3-txUpdate

@@ -13,8 +13,12 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@popperjs/core": "^2.11.8",
     "axios": "^1.14.0",
+=======
+    "axios": "^1.15.0",
+>>>>>>> feature/#3-txUpdate
     "pinia": "^3.0.4",
     "v-calendar": "^3.1.2",
     "vue": "^3.5.31",
