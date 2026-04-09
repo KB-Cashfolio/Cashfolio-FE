@@ -1,136 +1,20 @@
-<template>
-  <div class="page">
-    <div class="container">
-      <header class="header">
-        <div>
-          <p class="eyebrow">Budget Mate</p>
-          <h1>{{ currentMonthLabel }}</h1>
-        </div>
-        <button class="quick-btn" @click="handleQuickAdd">+</button>
-      </header>
-
-      <QuickAddModal v-if="isModalOpen" @close="isModalOpen = false" />
-
-      <section class="panel asset-panel">
-        <div class="asset-top">
-          <div>
-            <p class="label">현재 잔액</p>
-            <h2>{{ formatCurrency(summary.assets) }}</h2>
-          </div>
-        </div>
-
-        <div class="asset-grid">
-          <div class="mini-card">
-            <p>이번 달 수입</p>
-            <strong>+ {{ formatCurrency(summary.income) }}</strong>
-          </div>
-          <div class="mini-card">
-            <p>이번 달 지출</p>
-            <strong>- {{ formatCurrency(summary.expense) }}</strong>
-          </div>
-        </div>
-      </section>
-
-      <section class="beggars-panel">
-        <div class="section-head top-align">
-          <div>
-            <p class="beggars-eyebrow">Saving Character</p>
-            <h3>{{ beggars.name }} · Lv.{{ beggars.level }}</h3>
-          </div>
-        </div>
-
-        <div class="beggars-card">
-          <div class="beggars-wrap">
-            <div class="beggars">
-              <img v-if="beggars.img_path" :src="beggars.img_path" class="beggars-img" />
-            </div>
-          </div>
-
-          <div class="status-wrap">
-            <div class="status-item">
-              <div class="status-label-row">
-                <span>성장 경험치</span>
-                <strong>{{ beggars.exp }}%</strong>
-              </div>
-              <div class="status-track exp">
-                <div class="status-bar exp" :style="{ width: `${beggars.exp}%` }"></div>
-              </div>
-            </div>
-            <div class="beggars-ment" v-if="beggars.ment">{{ beggars.ment }}</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="section-head">
-          <div>
-            <h3>최근 거래 내역</h3>
-            <p>최신 순</p>
-          </div>
-        </div>
-
-        <div class="transaction-list">
-          <div v-for="tx in transactions" :key="tx.id" class="transaction-item">
-            <div class="tx-left">
-              <div :class="['tx-icon', tx.inandout_id === 'in' ? 'income' : 'expense']">
-                {{ tx.inandout_id === 'in' ? '↗' : '↘' }}
-              </div>
-              <div>
-                <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ tx.category }} · {{ tx.date }}</div>
-              </div>
-            </div>
-            <div :class="['tx-amount', tx.inandout_id === 'in' ? 'income' : 'expense']">
-              {{ tx.inandout_id === 'in' ? '+' : '-' }}{{ formatCurrency(tx.amount) }}
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-</template>
-
-<script setup>
-import { computed, ref, onMounted } from 'vue'
-import QuickAddModal from './QuickAddModal.vue'
-import { storeToRefs } from 'pinia'
-import { useHomeStore } from './HomeStore'
-
-const store = useHomeStore()
-
-const { summary, transactions, beggars } = storeToRefs(store)
-const { formatCurrency, fetchHomeData } = store
-
-const isModalOpen = ref(false)
-
-const handleQuickAdd = () => {
-  const loginUserId = localStorage.getItem('user_id')
-
-  // 화면 구성 확인을 위해 주석 처리함
-
-  //   if (!loginUserId) {
-  //     alert('로그인이 필요한 서비스입니다.')
-  //     return
-  //   }
-
-  isModalOpen.value = true
-}
-
-const currentMonthLabel = computed(() => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
-  return `${year}년 ${month}월`
-})
-
-onMounted(async () => {
-  await fetchHomeData()
-})
-</script>
-
-<style scoped>
 * {
   box-sizing: border-box;
+}
+
+/* 이전과 동일한 스타일 코드 */
+.custom-input {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.custom-input:focus {
+  border-color: #0f172a;
 }
 
 .page {
@@ -151,7 +35,6 @@ onMounted(async () => {
 }
 
 .header,
-.section-head,
 .asset-top,
 .transaction-item,
 .tx-left,
@@ -169,7 +52,7 @@ onMounted(async () => {
 }
 
 .eyebrow,
-.beggars-eyebrow {
+.character-eyebrow {
   margin: 0 0 6px;
   font-size: 12px;
   font-weight: 700;
@@ -181,7 +64,7 @@ onMounted(async () => {
   color: #64748b;
 }
 
-.beggars-eyebrow {
+.character-eyebrow {
   color: #b45309;
 }
 
@@ -222,7 +105,7 @@ h3 {
 
 .panel,
 .asset-panel,
-.beggars-panel {
+.character-panel {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 28px;
@@ -230,7 +113,7 @@ h3 {
 }
 
 .panel,
-.beggars-panel {
+.character-panel {
   padding: 20px;
 }
 
@@ -240,7 +123,7 @@ h3 {
 
 .label,
 .section-head p,
-.beggars-desc,
+.character-desc,
 .mission-reward,
 .tx-meta,
 .meta-row span {
@@ -263,29 +146,33 @@ h3 {
   color: #334155;
 }
 
-.asset-grid {
+.asset-grid,
+.category-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
 }
 
-.mini-card {
+.mini-card,
+.category-card {
   background: #f8fafc;
   border-radius: 20px;
   padding: 16px;
 }
 
 .mini-card p,
+.category-name,
 .reward-title,
 .tx-meta,
 .mission-reward,
 .section-head p,
-.beggars-desc {
+.character-desc {
   font-size: 13px;
 }
 
-.mini-card strong {
+.mini-card strong,
+.category-amount {
   display: block;
   margin-top: 6px;
   font-size: 18px;
@@ -335,12 +222,27 @@ h3 {
   font-size: 14px;
 }
 
-.beggars-panel {
+.category-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #334155;
+  margin-bottom: 12px;
+}
+
+.character-panel {
   background: linear-gradient(180deg, #fffbeb 0%, #fff7ed 100%);
   border-color: #fde68a;
 }
 
-.beggars-card {
+.character-card {
   margin-top: 16px;
   display: grid;
   grid-template-columns: 96px 1fr;
@@ -351,7 +253,7 @@ h3 {
   padding: 16px;
 }
 
-.beggars-wrap {
+.avatar-wrap {
   border-radius: 24px;
   background: linear-gradient(180deg, #fde68a 0%, #fed7aa 100%);
   display: flex;
@@ -361,28 +263,50 @@ h3 {
   padding: 12px;
 }
 
-.beggars {
+.avatar {
   font-size: 52px;
   line-height: 1;
 }
 
-.beggars-img {
-  width: 100%;
-  height: auto;
-  max-width: 60px;
-  object-fit: contain;
+.avatar-text {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
 }
 
-.beggars-ment {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.4;
-  color: #92400e;
-  background: #fef3c7;
-  padding: 8px 12px;
+.sort-controls {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 4px;
   border-radius: 12px;
-  font-style: italic;
-  text-align: center;
+}
+
+.sort-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.sort-btn.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* 기존 section-head 수정 (버튼이 옆으로 가도록) */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .status-wrap {
@@ -524,12 +448,31 @@ h3 {
     font-size: 28px;
   }
 
-  .beggars-card {
+  .character-card {
     grid-template-columns: 1fr;
   }
 
-  .asset-grid {
+  .asset-grid,
+  .category-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
-</style>
+
+/* Chrome, Safari, Edge, Opera에서 증감 버튼 제거 */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox에서 증감 버튼 제거 */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* 추가 팁: 금액 입력창은 우측 정렬이 가독성이 좋을 수 있습니다 (선택사항) */
+.amount-input {
+  text-align: right;
+  font-weight: 600;
+  color: #0f172a;
+}
