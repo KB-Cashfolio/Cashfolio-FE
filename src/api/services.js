@@ -65,6 +65,8 @@ export const authService = {
         // 보안상 비밀번호는 제외하고 반환
         const { password: _, ...userWithoutPassword } = user
 
+        localStorage.setItem('user', JSON.stringify(userWithoutPassword))
+
         // 로컬 스토리지 등에 유저 정보를 저장할 수 있도록 반환
         return {
           success: true,
@@ -114,6 +116,9 @@ export const authService = {
       // 비밀번호 제거
       const { password, ...userWithoutPassword } = res.data
 
+      // 가입 성공시 로컬 스토리지 저장
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword))
+
       return {
         success: true,
         user: userWithoutPassword,
@@ -127,11 +132,25 @@ export const authService = {
   async updateUserInfo(id, updateData) {
     try {
       const response = await api.patch(`/users/${id}`, updateData)
-      return response.data
+      const updatedUser = response.data
+
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      return updatedUser
     } catch (error) {
       console.error('정보 업데이트 실패:', error)
       throw error
     }
+  },
+
+  // 현재 사용자 데이터 가져오기 - ProfileView에서 사용
+  getCurrentUser() {
+    const user = localStorage.getItem('user')
+    return user ? JSON.parse(user) : null
+  },
+
+  // 로그인 여부
+  isAuthenticated() {
+    return !!localStorage.getItem('user')
   },
 }
 
