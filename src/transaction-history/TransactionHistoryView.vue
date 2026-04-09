@@ -129,7 +129,14 @@ const resetFilter = () => {
 }
 
 const filteredTransactions = computed(() => {
-  let list = store.transactions
+  let list = [...store.transactions]
+
+  list.sort((a, b) => {
+    const dateDiff = new Date(b.date) - new Date(a.date)
+    if (dateDiff !== 0) return dateDiff
+    return b.id - a.id // ID도 내림차순
+  })
+
   if (isFiltering.value) {
     list = list.filter((tx) => tx.date === formattedSelectedDate.value)
   }

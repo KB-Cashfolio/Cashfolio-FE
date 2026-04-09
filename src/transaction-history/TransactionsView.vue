@@ -1,9 +1,10 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useTransactionStore } from '../stores/TransactionStore' // 경로에 맞게 수정하세요
+import { useTransactionStore } from './TransactionStore'
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 import AlertModal from '../components/AlertModal.vue'
+import { useRoute } from 'vue-router'
 
 const store = useTransactionStore()
 
@@ -24,8 +25,7 @@ const selectedType = ref('1')
 const form = reactive({
   date: new Date().toISOString().substr(0, 10),
   amount: '',
-  category: '',
-  inandout_id: 1,
+  category_id: '',
   account_id: '',
   memo: '',
   user_id: '1',
@@ -116,14 +116,13 @@ const resetForm = () => {
     date: new Date().toISOString().substr(0, 10),
     amount: '',
     category_id: filteredCategories.value.length > 0 ? filteredCategories.value[0].id : '',
-    inandout_id: '1',
     memo: '',
     user_id: '0Lasf-tsJc',
     account_id: accounts.value.length > 0 ? accounts.value[0].id : '',
     id: '',
   })
 }
-
+const route = useRoute()
 // --- Lifecycle ---
 onMounted(async () => {
   await store.fetchTransactions()
@@ -131,6 +130,16 @@ onMounted(async () => {
   await store.fetchCategories()
   await store.fetchAccounts()
   await store.fetchBanks()
+
+  const targetId = route.query.id
+  if (targetId) {
+    // TransactionHistoryView에서 거래내역 수정하기 누를 경우 - 해당 거래 내역 아이디 찾기
+    const tx = store.transactions.find((item) => String(item.id) === String(targetId))
+
+    if (tx) {
+      selectTransaction(tx)
+    }
+  }
 
   // 초기 등록 시 첫 번째 계좌가 자동으로 선택되도록 설정
   if (accounts.value.length > 0 && !form.account_id) {
@@ -308,4 +317,4 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped src="../assets/transaction.css"></style>
+<style scoped src="@/assets/css/transaction.css"></style>
