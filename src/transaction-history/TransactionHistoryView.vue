@@ -229,6 +229,14 @@ onMounted(async () => {
   padding: 10px;
 }
 
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
 :deep(.vc-container) {
   background: transparent !important;
   border: none !important;
