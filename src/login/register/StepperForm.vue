@@ -26,17 +26,43 @@
 
         <div v-if="currentStep === 2" class="step-content">
           <h2 class="step-title">계좌를 연결할까요?</h2>
-          <p class="step-desc">정확한 자산 관리를 위해 계좌를 조회합니다.</p>
-          <div class="account-check-box" :class="{ active: formData.isAccountLinked }">
-            <div class="icon">🏦</div>
-            <p>내 모든 계좌 불러오기</p>
-            <button
-              type="button"
-              @click="formData.isAccountLinked = !formData.isAccountLinked"
-              class="link-btn"
-            >
-              {{ formData.isAccountLinked ? '연결 완료' : '조회하기' }}
-            </button>
+          <p class="step-desc">정확한 자산 관리를 위해 계좌 정보를 입력해주세요.</p>
+
+          <div class="account-input-form">
+            <div class="input-group">
+              <label for="bank">은행</label>
+              <select id="bank" v-model="accountForm.bank_id">
+                <option value="">은행 선택</option>
+                <option value="KB">KB국민은행</option>
+                <option value="SH">신한은행</option>
+                <option value="NH">NH농협</option>
+                <option value="KA">카카오뱅크</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="accNum">계좌 번호</label>
+              <input
+                type="text"
+                id="accNum"
+                v-model="accountForm.acc_num"
+                placeholder="'-'를 포함하여 입력"
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="balance">현재 잔액 (원)</label>
+              <input type="number" id="balance" v-model="accountForm.balance" placeholder="0" />
+            </div>
+
+            <button type="button" @click="addAccount" class="add-account-btn">계좌 등록하기</button>
+          </div>
+
+          <div v-if="addedAccounts.length > 0" class="added-accounts-list">
+            <div v-for="(acc, index) in addedAccounts" :key="index" class="acc-item">
+              <span>{{ acc.bank_id }} | {{ acc.acc_num }}</span>
+              <strong>{{ acc.balance.toLocaleString() }}원</strong>
+            </div>
           </div>
         </div>
 
@@ -80,13 +106,24 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { authService } from '@/api/services'
+import { userService } from '@/api/services'
 import { useAuthStore } from '@/login/register/RegisterStore'
 import { handleClientError } from '@/utils/errorHandler'
+import { accountService } from '@/api/services'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const currentStep = ref(1)
+
+// 계좌 입력을 위한 임시 폼 데이터
+const accountForm = reactive({
+  bank_id: '',
+  acc_num: '',
+  balance: null,
+})
+
+// 등록된 계좌들을 담을 배열
+const addedAccounts = ref([])
 
 // 🆕 고정된 ID 대신 현재 회원가입/로그인된 유저의 ID를 가져옴
 const userId = computed(() => authStore.user?.id)
@@ -98,6 +135,31 @@ const formData = reactive({
   dailyLimit: null,
 })
 
+// 계좌 추가 함수
+const addAccount = () => {
+  if (!accountForm.bank_id || !accountForm.acc_num || accountForm.balance === null) {
+    alert('계좌 정보를 모두 입력해주세요.')
+    return
+  }
+
+  // 배열에 추가
+  addedAccounts.value.push({
+    user_id: userId.value,
+    ...accountForm,
+  })
+
+  // 총 자산(Step 3)에 자동으로 합산 반영
+  formData.assets += Number(accountForm.balance)
+  formData.isAccountLinked = true
+
+  // 폼 초기화
+  accountForm.bank_id = ''
+  accountForm.acc_num = ''
+  accountForm.balance = null
+
+  alert('계좌가 추가되었습니다.')
+}
+
 const handleNext = async () => {
   if (currentStep.value < 4) {
     currentStep.value++
@@ -108,20 +170,27 @@ const handleNext = async () => {
       router.push('/login')
       return
     }
-    // 2. 최종 데이터 전송
     try {
-      // 서버 데이터 구조에 맞게 매핑
+      // 🔥 1. 서버에 계좌 리스트 전송 (이 부분이 추가/수정됨)
+      if (addedAccounts.value.length > 0) {
+        // 배열에 담긴 계좌들을 하나씩 서버에 post 합니다.
+        const accountPromises = addedAccounts.value.map((acc) => accountService.createAccount(acc))
+        // 모든 계좌 등록이 완료될 때까지 기다림
+        await Promise.all(accountPromises)
+        console.log('모든 계좌 등록 완료')
+      }
+
+      // 2. 유저 정보 업데이트 (닉네임, 한도 등)
       const updateData = {
         username: formData.nickname,
-        daily_limit: formData.dailyLimit, // 🆕 경험치 계산을 위해 추가
-        monthly_limit: formData.dailyLimit * 30, // 일별 한도를 한 달 한도로 변환 (선택)
-        total_income: formData.assets, // 초기 자산을 총 수입으로 잡거나 필드 추가
+        daily_limit: formData.dailyLimit,
+        monthly_limit: formData.dailyLimit * 30,
+        total_income: formData.assets, // 계좌들 잔액의 총합
         beg_level: 1,
         current_exp: 0,
       }
 
-      await authService.updateUserInfo(userId.value, updateData) // Axios 통신
-
+      await userService.updateUser(userId.value, updateData)
       // 🆕 스토어 및 로컬스토리지 최신화 (프로필 페이지 등에서 즉시 반영되도록)
       const updatedUser = { ...authStore.user, ...updateData }
       authStore.user = updatedUser
@@ -244,5 +313,48 @@ const handleNext = async () => {
 
 .auth-submit-btn:hover {
   background: var(--color-primary-dark);
+}
+
+/* 계좌 입력 폼 스타일 */
+.account-input-form {
+  background: var(--color-bg-light);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  margin-bottom: 20px;
+}
+
+.add-account-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--color-text-main);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.added-accounts-list {
+  margin-top: 15px;
+}
+
+.acc-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+select {
+  width: 100%;
+  height: 45px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  outline: none;
 }
 </style>

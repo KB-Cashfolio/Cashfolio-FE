@@ -157,26 +157,21 @@ export const useAuthStore = defineStore('auth', () => {
       validateRegister('password') &&
       validateRegister('passwordConfirm')
 
-    if (!ok) return { success: false }
+    if (!ok) throw new Error('입력값 오류')
 
     isLoading.value = true
 
     try {
-      const result = await authService.register({
+      const userData = await authService.register({
         email: registerForm.email,
         password: registerForm.password,
         phone: registerForm.phone,
       })
 
-      if (result.success) {
-        user.value = result.user
-        localStorage.setItem('user', JSON.stringify(result.user))
-      }
+      user.value = userData
+      localStorage.setItem('user', JSON.stringify(userData))
 
-      return result
-    } catch (err) {
-      handleClientError(err)
-      return { success: false, message: '서버 오류' }
+      return userData
     } finally {
       isLoading.value = false
     }
