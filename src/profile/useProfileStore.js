@@ -52,39 +52,45 @@ export const useProfileStore = defineStore('profile', {
       try {
         const today = new Date().toISOString().split('T')[0]
 
-        // 1. 오늘 지출 내역 가져오기
-        const res = await transactionService.getTransactionsByDate(userId, today)
-        const totalSpent = res.data
-          .filter((tx) => tx.inandout_id === 'out')
-          .reduce((sum, tx) => sum + tx.amount, 0)
+        // 1. 수정된 서비스 함수(getTodayExpenses) 사용 권장
+        // 오늘 총 지출만 가져오기
+        const res = await transactionService.getTodayExpenses(userId, today)
+        const totalSpent = res.data.reduce((sum, tx) => sum + Number(tx.amount), 0)
 
-        const goal = this.user.daily_limit || 20000 // 유저가 정한 일일 목표
+        const goal = this.user.daily_limit || 20000 // 유저의 일일 목표
 
-        if (totalSpent <= goal) {
-          // 2. 절약 비율 계산 (보상 경험치)
-          const earnedExp = Math.floor(((goal - totalSpent) / goal) * 100)
+        if (totalSpent < goal) {
+          // 2. 아까 정한 로직: (절약 비율) * 0.1
+          const savingRatio = ((goal - totalSpent) / goal) * 100
+          const earnedExp = Math.floor(savingRatio * 0.1) // 0.1 가중치 적용
 
           if (earnedExp > 0) {
-            let nextExp = this.user.current_exp + earnedExp
-            let nextLevel = this.user.beg_level
+            let nextExp = (this.user.current_exp || 0) + earnedExp
+            let nextLevel = this.user.beg_level || 1
 
-            // 3. 레벨업 처리 (100 초과 시 다음 레벨로)
+            // 3. 레벨업 처리
             while (nextExp >= 100) {
               nextLevel++
               nextExp -= 100
             }
 
-            // 4. 서버 업데이트
-            const response = await userService.updateAccount(targetId, {
+            // 4. 서버 업데이트 (targetId -> userId로 오타 수정 및 통합된 서비스 사용)
+            const response = await userService.updateUserStats(userId, {
               current_exp: nextExp,
               beg_level: nextLevel,
             })
 
+            // 스토어 상태 동기화
             this.user = response.data
-            alert(`🎉 절약 성공! 경험치 ${earnedExp}를 획득하여 Lv.${nextLevel}이 되었습니다!`)
+
+            // 🆕 레벨업했으면 캐릭터 정보도 새로고침
+            if (nextLevel !== this.user.beg_level) {
+              const beggarsRes = await characterService.getCharacterList()
+              this.character = beggarsRes.data.find((b) => Number(b.level) === nextLevel)
+            }
+
+            console.log(`경험치 획득 완료: +${earnedExp}%`)
           }
-        } else {
-          alert('목표 금액을 초과했어요. 내일은 좀 더 아껴볼까요? 💪')
         }
       } catch (err) {
         console.error('경험치 업데이트 실패:', err)

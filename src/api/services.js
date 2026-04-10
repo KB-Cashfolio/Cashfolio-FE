@@ -108,6 +108,7 @@ export const authService = {
         ...userData,
         beg_level: 1,
         current_exp: 0,
+        daily_limit: 0,
         monthly_limit: 0,
         total_income: 0,
         total_expense: 0,
@@ -166,6 +167,6 @@ export const transactionService = {
   },
   // 특정 날짜 범위 검색 (예시)
   getTransactionsByDate(userId, date) {
-    return api.get(`/transactions?user_id=${userId}&date=${date}`)
+    return api.get(`/transactions?user_id=${userId}&date=${date}&inandout_id=2`)
   },
 }
