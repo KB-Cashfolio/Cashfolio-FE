@@ -1,5 +1,5 @@
 import api from './index'
-import { API_ERROR_MESSAGES } from '@/utils/ErrorMessage'
+import { API_ERROR_MESSAGES } from '@/utils/errorMessage'
 import { AppError, ERROR_LEVEL } from '@/utils/appError'
 
 api.interceptors.response.use(
