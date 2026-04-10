@@ -48,6 +48,7 @@
       </div>
     </div>
   </div>
+  <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
 </template>
 
 <script setup>
@@ -55,6 +56,7 @@ import { reactive, ref, onMounted, computed, watch } from 'vue'
 import { useHomeStore } from './HomeStore'
 import { useTransactionStore } from '../transaction-history/TransactionStore'
 import { storeToRefs } from 'pinia'
+import AlertModal from '../components/AlertModal.vue'
 
 const homeStore = useHomeStore()
 const transactionStore = useTransactionStore()
@@ -84,10 +86,27 @@ watch(selectedType, () => {
   }
 })
 
+const isAlertShow = ref(false)
+const alertMsg = ref('')
+const alertIcon = ref('💡')
+const saveSucceeded = ref(false)
+
+const showAlert = (message, icon = '💡') => {
+  alertMsg.value = message
+  alertIcon.value = icon
+  isAlertShow.value = true
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (saveSucceeded.value) {
+    emit('close')
+  }
+}
+
 const onSave = async () => {
-  if (!newTx.amount || newTx.amount <= 0) return alert('금액을 입력해주세요!')
-  if (!newTx.category_id) return alert('카테고리를 선택해주세요!')
-  if (!newTx.account_id) return alert('계좌를 선택해주세요!')
+  saveSucceeded.value = false
+  if (!newTx.amount || newTx.amount <= 0) return showAlert('금액을 입력해주세요!', '⚠️')
 
   const payload = {
     memo: newTx.memo || transactionStore.getCategoryName(newTx.category_id),
@@ -100,9 +119,10 @@ const onSave = async () => {
   const isSuccess = await homeStore.addTransaction(payload)
 
   if (isSuccess) {
-    emit('close')
+    saveSucceeded.value = true
+    showAlert('내역이 저장되었습니다.', '🎉')
   } else {
-    alert('거래 저장에 실패했습니다.')
+    showAlert('거래 저장에 실패했습니다.', '😥')
   }
 }
 

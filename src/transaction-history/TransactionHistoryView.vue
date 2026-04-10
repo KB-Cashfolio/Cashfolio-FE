@@ -120,6 +120,7 @@ import { useRouter } from 'vue-router'
 import { useTransactionStore } from './TransactionStore'
 import { useProfileStore } from '../profile/useProfileStore'
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
+import { handleClientError } from '@/utils/errorHandler'
 
 const store = useTransactionStore()
 const router = useRouter()
@@ -178,7 +179,6 @@ const goToUpdate = (tx) => {
 }
 
 const openDeleteModal = (id) => {
-  console.log('삭제id', id)
   targetDeleteId.value = id
   isDeleteModalShow.value = true
 }
@@ -189,10 +189,8 @@ async function confirmDelete() {
       await store.deleteTransaction(targetDeleteId.value)
       isDeleteModalShow.value = false
       selectedDetail.value = null
-      console.log('삭제 성공')
     } catch (error) {
-      console.error('삭제 실패:', error)
-      alert('삭제에 실패했습니다. 다시 시도해주세요.')
+      handleClientError(error)
     }
   }
 }
@@ -238,6 +236,14 @@ onMounted(async () => {
 }
 .calendar-panel {
   padding: 10px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748b;
 }
 
 :deep(.vc-container) {

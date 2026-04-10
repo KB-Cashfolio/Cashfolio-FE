@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '../api/index'
-import { userService } from '../api/services'
+import api from '../api/index.js'
+import { handleClientError } from '@/utils/errorHandler.js'
 
 export const useTransactionStore = defineStore('transaction', () => {
   // --- State (상태) ---
@@ -71,7 +71,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get(`/transactions?user_id=${userData.id}`)
       transactions.value = res.data
     } catch (err) {
-      console.error('거래내역 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -81,7 +81,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/inandout')
       inandout.value = res.data
     } catch (err) {
-      console.error('공통코드 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -91,7 +91,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/accounts')
       accounts.value = res.data
     } catch (err) {
-      console.error('계좌 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -101,7 +101,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/category')
       categories.value = res.data
     } catch (err) {
-      console.error('카테고리 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -111,7 +111,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/bank')
       banks.value = res.data
     } catch (err) {
-      console.error('은행정보 로드 실패', err)
+      handleClientError(err)
     }
   }
 

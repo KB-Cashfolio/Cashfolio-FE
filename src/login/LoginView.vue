@@ -98,13 +98,13 @@ const closeAlert = () => {
 }
 
 const handleLogin = async () => {
-  loginSucceeded.value = false
-  const result = await auth.login()
+  try {
+    await auth.login()
 
-  if (result.success) {
-    loginSucceeded.value = true
     showAlert('환영합니다!', '👋')
-  } else {
+    router.push('/')
+  } catch (err) {
+    console.log(err)
     showAlert('이메일 또는 비밀번호가 일치하지 않습니다.')
   }
 }

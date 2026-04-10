@@ -51,16 +51,12 @@
   align-items: flex-start;
 }
 
-.eyebrow,
-.character-eyebrow {
+.eyebrow {
   margin: 0 0 6px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.eyebrow {
   color: #64748b;
 }
 

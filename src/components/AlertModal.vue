@@ -38,7 +38,7 @@ const emit = defineEmits(['close'])
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 3000; /* 다른 모달들보다 항상 위에 있도록 z-index 값을 높입니다. */
   padding: 20px;
 }
 
