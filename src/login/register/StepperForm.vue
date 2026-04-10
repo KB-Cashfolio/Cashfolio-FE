@@ -3,9 +3,9 @@
     <div class="page-container">
       <div class="stepper-progress">
         <div class="progress-track">
-          <div class="progress-bar" :style="{ width: `${(currentStep / 4) * 100}%` }"></div>
+          <div class="progress-bar" :style="{ width: `${(currentStep / 3) * 100}%` }"></div>
         </div>
-        <div class="step-indicator">Step {{ currentStep }} / 4</div>
+        <div class="step-indicator">Step {{ currentStep }} / 3</div>
       </div>
 
       <form @submit.prevent="handleNext">
@@ -25,22 +25,6 @@
         </div>
 
         <div v-if="currentStep === 2" class="step-content">
-          <h2 class="step-title">계좌를 연결할까요?</h2>
-          <p class="step-desc">정확한 자산 관리를 위해 계좌를 조회합니다.</p>
-          <div class="account-check-box" :class="{ active: formData.isAccountLinked }">
-            <div class="icon">🏦</div>
-            <p>내 모든 계좌 불러오기</p>
-            <button
-              type="button"
-              @click="formData.isAccountLinked = !formData.isAccountLinked"
-              class="link-btn"
-            >
-              {{ formData.isAccountLinked ? '연결 완료' : '조회하기' }}
-            </button>
-          </div>
-        </div>
-
-        <div v-if="currentStep === 3" class="step-content">
           <h2 class="step-title">현재 총 자산은?</h2>
           <p class="step-desc">수중에 있는 모든 돈을 합쳐주세요.</p>
           <div class="input-group">
@@ -49,7 +33,7 @@
           </div>
         </div>
 
-        <div v-if="currentStep === 4" class="step-content">
+        <div v-if="currentStep === 3" class="step-content">
           <h2 class="step-title">하루에 얼마만 쓸까요?</h2>
           <p class="step-desc">정해진 금액을 넘기면 캐릭터가 슬퍼해요.</p>
           <div class="input-group">
@@ -69,7 +53,7 @@
             이전
           </button>
           <button type="submit" class="auth-submit-btn">
-            {{ currentStep === 4 ? '설정 완료' : '다음으로' }}
+            {{ currentStep === 3 ? '설정 완료' : '다음으로' }}
           </button>
         </div>
       </form>
@@ -98,7 +82,7 @@ const formData = reactive({
 })
 
 const handleNext = async () => {
-  if (currentStep.value < 4) {
+  if (currentStep.value < 3) {
     currentStep.value++
   } else {
     // ⚠️ 가드 로직: ID가 없으면 진행 불가
