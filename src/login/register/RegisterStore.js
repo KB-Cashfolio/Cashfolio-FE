@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref, computed, watch } from 'vue'
 import { authService } from '@/api/services'
+import { handleClientError } from '@/utils/errorHandler'
 
 export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
@@ -173,8 +174,8 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       return result
-    } catch (e) {
-      console.error(e)
+    } catch (err) {
+      handleClientError(err)
       return { success: false, message: '서버 오류' }
     } finally {
       isLoading.value = false
@@ -227,8 +228,8 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       return result
-    } catch (e) {
-      console.error(e)
+    } catch (err) {
+      handleClientError(err)
       return { success: false, message: '서버 오류' }
     } finally {
       isLoading.value = false

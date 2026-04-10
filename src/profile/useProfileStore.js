@@ -29,15 +29,13 @@ export const useProfileStore = defineStore('profile', {
         this.accounts = accountsRes.data // 🆕 받아온 계좌 배열 저장
         this.currentUserId = targetId // 성공 시 현재 ID 업데이트
 
-        console.log('불러온 계좌 정보:', this.accounts) // 확인용
-
         // 🆕 유저 레벨에 맞는 캐릭터 데이터 찾기
         if (this.user && beggarsRes.data) {
           const userLevel = Number(this.user.beg_level || 1)
           this.character = beggarsRes.data.find((b) => Number(b.level) === userLevel)
         }
       } catch (err) {
-        console.error('데이터 로드 실패:', err)
+        handleClientError(err)
       } finally {
         this.loading = false
       }
@@ -87,7 +85,7 @@ export const useProfileStore = defineStore('profile', {
           alert('목표 금액을 초과했어요. 내일은 좀 더 아껴볼까요? 💪')
         }
       } catch (err) {
-        console.error('경험치 업데이트 실패:', err)
+        handleClientError(err)
       } finally {
         this.loading = false
       }

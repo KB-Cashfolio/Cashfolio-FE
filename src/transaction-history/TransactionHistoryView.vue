@@ -102,6 +102,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTransactionStore } from './TransactionStore'
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
+import { handleClientError } from '@/utils/errorHandler'
 
 const store = useTransactionStore()
 const router = useRouter()
@@ -160,7 +161,6 @@ const goToUpdate = (tx) => {
 }
 
 const openDeleteModal = (id) => {
-  console.log('삭제id', id)
   targetDeleteId.value = id
   isDeleteModalShow.value = true
 }
@@ -171,10 +171,8 @@ async function confirmDelete() {
       await store.deleteTransaction(targetDeleteId.value)
       isDeleteModalShow.value = false
       selectedDetail.value = null
-      console.log('삭제 성공')
     } catch (error) {
-      console.error('삭제 실패:', error)
-      alert('삭제에 실패했습니다. 다시 시도해주세요.')
+      handleClientError(error)
     }
   }
 }
