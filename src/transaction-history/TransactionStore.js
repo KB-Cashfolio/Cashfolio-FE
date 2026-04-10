@@ -7,9 +7,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   // --- State (상태) ---
   const transactions = ref([]) // 거래내역
   const inandout = ref([]) // 수입, 지출
-  const accounts = ref([]) // 계좌 정보
   const categories = ref([]) // 카테고리 정보
-  const banks = ref([]) // 은행 정보
 
   const currentSort = ref('date') // 현재 조회 정렬 방식
 
@@ -22,19 +20,6 @@ export const useTransactionStore = defineStore('transaction', () => {
     } else {
       // 금액 높은순
       return list.sort((a, b) => b.amount - a.amount)
-    }
-  })
-
-  // 계좌 은행명과 계좌번호 뒤 4자리
-  const getAccountName = computed(() => {
-    return (id) => {
-      const account = accounts.value.find((a) => a.id === String(id))
-      if (!account) return '알 수 없는 계좌'
-
-      const bank = banks.value.find((b) => b.id === account.bank_id)
-      const bankName = bank ? bank.abbr_name : account.bank_id
-
-      return `${bankName} - ${account.acc_num.slice(-4)}`
     }
   })
 
@@ -85,16 +70,6 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   }
 
-  // 계좌 정보 가져오기
-  const fetchAccounts = async () => {
-    try {
-      const res = await api.get('/accounts')
-      accounts.value = res.data
-    } catch (err) {
-      console.error('계좌 로드 실패', err)
-    }
-  }
-
   // 카테고리 정보 가져오기 (추가)
   const fetchCategories = async () => {
     try {
@@ -102,16 +77,6 @@ export const useTransactionStore = defineStore('transaction', () => {
       categories.value = res.data
     } catch (err) {
       console.error('카테고리 로드 실패', err)
-    }
-  }
-
-  // 은행 정보 가져오기
-  const fetchBanks = async () => {
-    try {
-      const res = await api.get('/bank')
-      banks.value = res.data
-    } catch (err) {
-      console.error('은행정보 로드 실패', err)
     }
   }
 
@@ -175,31 +140,17 @@ export const useTransactionStore = defineStore('transaction', () => {
   return {
     transactions,
     inandout,
-    accounts,
     categories,
-    banks,
     currentSort,
     displayTransactions,
-    getAccountName,
     getCategoryName,
     getCategoryType,
     setSort,
     fetchTransactions,
     fetchInAndOut,
-    fetchAccounts,
     fetchCategories,
-    fetchBanks,
     addTransaction,
     updateTransaction,
     deleteTransaction,
-
-    getCategoryName: computed(
-      () => (id) => categories.value.find((c) => c.id === String(id))?.name || '기타',
-    ),
-    getCategoryType,
-    fetchInAndOut,
-    fetchAccounts,
-    fetchCategories,
-    fetchBanks,
   }
 })

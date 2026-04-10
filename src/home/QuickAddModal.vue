@@ -28,15 +28,6 @@
         </div>
 
         <div class="field">
-          <label>계좌</label>
-          <select v-model="newTx.account_id">
-            <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
-              {{ transactionStore.getAccountName(acc.id) }}
-            </option>
-          </select>
-        </div>
-
-        <div class="field">
           <label>메모</label>
           <input v-model="newTx.memo" placeholder="상세 내용 (선택)" />
         </div>
@@ -87,7 +78,6 @@ watch(selectedType, () => {
 const onSave = async () => {
   if (!newTx.amount || newTx.amount <= 0) return alert('금액을 입력해주세요!')
   if (!newTx.category_id) return alert('카테고리를 선택해주세요!')
-  if (!newTx.account_id) return alert('계좌를 선택해주세요!')
 
   const payload = {
     memo: newTx.memo || transactionStore.getCategoryName(newTx.category_id),
