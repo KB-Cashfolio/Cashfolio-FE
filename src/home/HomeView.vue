@@ -65,23 +65,24 @@
         <div class="section-head">
           <div>
             <h3>최근 거래 내역</h3>
+            <br/>
             <p>최신 순</p>
           </div>
         </div>
 
         <div class="transaction-list">
-          <div v-for="tx in transactions" :key="tx.id" class="transaction-item">
+          <div v-for="tx in recentTransactions" :key="tx.id" class="transaction-item">
             <div class="tx-left">
-              <div :class="['tx-icon', tx.inandout_id === 'in' ? 'income' : 'expense']">
-                {{ tx.inandout_id === 'in' ? '↗' : '↘' }}
+              <div :class="['tx-icon', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+                {{ getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
                 <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ tx.category }} · {{ tx.date }}</div>
+                <div class="tx-meta">{{ getCategoryName(tx.category_id) }} · {{ tx.date }}</div>
               </div>
             </div>
-            <div :class="['tx-amount', tx.inandout_id === 'in' ? 'income' : 'expense']">
-              {{ tx.inandout_id === 'in' ? '+' : '-' }}{{ formatCurrency(tx.amount) }}
+            <div :class="['tx-amount', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+              {{ formatCurrency(tx.amount) }}
             </div>
           </div>
         </div>
@@ -95,18 +96,34 @@ import { computed, ref, onMounted } from 'vue'
 import QuickAddModal from './QuickAddModal.vue'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from './HomeStore'
+import { useTransactionStore } from '../transaction-history/TransactionStore'
 
 const store = useHomeStore()
+const txStore = useTransactionStore()
 
 const { summary, transactions, beggars } = storeToRefs(store)
 const { formatCurrency, fetchHomeData } = store
-
+const { getCategoryName, getCategoryType } = txStore
 const isModalOpen = ref(false)
+
+const recentTransactions = computed(() => {
+  let list = [...transactions.value]
+  
+  // 날짜 최신순, 날짜가 같으면 ID 내림차순 정렬
+  list.sort((a, b) => {
+    const dateDiff = new Date(b.date) - new Date(a.date)
+    if (dateDiff !== 0) return dateDiff
+    return b.id - a.id 
+  })
+  
+  // 홈 화면이므로 가장 최근 5건만 표시 (원하는 숫자로 조절 가능)
+  return list.slice(0, 5)
+})
 
 const handleQuickAdd = () => {
   // 🆕 'user' 객체가 있는지 확인
   const isLogin = localStorage.getItem('user')
-
+  console.log(transactions)
   if (!isLogin) {
     alert('로그인이 필요한 서비스입니다.')
     router.push('/login') // 로그인 페이지로 유도
@@ -125,6 +142,10 @@ const currentMonthLabel = computed(() => {
 
 onMounted(async () => {
   await fetchHomeData()
+  await txStore.fetchCategories()
+  
+  console.log(transactions.value)
+  console.log(summary.value)
 })
 </script>
 

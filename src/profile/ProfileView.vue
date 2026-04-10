@@ -89,19 +89,16 @@
                 </div>
               </div>
             </div>
-
-            <div v-for="acc in profileStore.accounts" :key="acc.id" class="transaction-item">
+            <div class="transaction-item">
               <div class="tx-left">
-                <div class="tx-icon income">🏦</div>
+                <div class="tx-icon">💵</div>
                 <div>
-                  <p class="tx-title">{{ acc.bank }}</p>
-                  <p class="tx-meta">{{ acc.acc_num }}</p>
+                  <p class="tx-title">일일 소비 한도</p>
+                  <p class="tx-meta">{{ profileStore.user.daily_limit }}원</p>
                 </div>
               </div>
-              <div class="tx-right" style="text-align: right">
-                <p class="tx-amount">{{ Number(acc.balance).toLocaleString() }}원</p>
-              </div>
             </div>
+          
           </div>
         </section>
 
@@ -146,7 +143,9 @@ const openLogoutModal = () => {
 const confirmLogout = () => {
   profileStore.clearUser()
   localStorage.clear()
-  router.push('/login')
+  // 런치스크린을 다시 표시하기 위해 세션 기록을 삭제
+  sessionStorage.removeItem('hasSeenLaunchScreen')
+  window.location.href = '/login'
 }
 const cancelLogout = () => {
   isLogoutModalVisible.value = false

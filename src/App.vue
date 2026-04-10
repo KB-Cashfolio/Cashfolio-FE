@@ -12,12 +12,13 @@ const hideNavRoutes = ['login', 'register'] // router/index.js에 설정한 name
 // 현재 페이지가 hideNavRoutes에 포함되지 않을 때만 true
 const showNavbar = computed(() => !hideNavRoutes.includes(route.name))
 
-// 초기 상태는 로딩중(true)
-const isLoading = ref(true)
+// 초기 상태: 세션 스토리지에 방문 기록이 없다면 로딩중(true)으로 설정
+const isLoading = ref(!sessionStorage.getItem('hasSeenLaunchScreen'))
 
 // LaunchScreen에서 3.5초 뒤에 emit('complete')를 쏘면 이 함수가 실행됩니다.
 const onLaunchComplete = () => {
   isLoading.value = false
+  sessionStorage.setItem('hasSeenLaunchScreen', 'true')
 }
 </script>
 

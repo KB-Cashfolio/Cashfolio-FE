@@ -54,10 +54,12 @@ const emit = defineEmits(['close'])
 const { accounts, categories, inandout } = storeToRefs(transactionStore)
 
 const newTx = reactive({
-  memo: '',
-  amount: null,
+  id: '',
+  user_id:'',
   category_id: '',
-  account_id: '',
+  amount: null,
+  date: '',
+  memo: '',
 })
 
 const selectedType = ref('2') // '2' for 지출 (expense)
@@ -80,11 +82,9 @@ const onSave = async () => {
   if (!newTx.category_id) return alert('카테고리를 선택해주세요!')
 
   const payload = {
-    memo: newTx.memo || transactionStore.getCategoryName(newTx.category_id),
-    amount: newTx.amount,
     category_id: newTx.category_id,
-    account_id: newTx.account_id,
-    inandout_id: selectedType.value === '1' ? 'in' : 'out',
+    amount: newTx.amount,
+    memo: newTx.memo
   }
 
   const isSuccess = await homeStore.addTransaction(payload)

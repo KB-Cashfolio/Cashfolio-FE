@@ -8,7 +8,6 @@ export const useTransactionStore = defineStore('transaction', () => {
   const transactions = ref([]) // 거래내역
   const inandout = ref([]) // 수입, 지출
   const categories = ref([]) // 카테고리 정보
-
   const currentSort = ref('date') // 현재 조회 정렬 방식
 
   // --- Getters (계산된 상태) ---
@@ -25,6 +24,7 @@ export const useTransactionStore = defineStore('transaction', () => {
 
   // 카테고리 이름 가져오기 (추가)
   const getCategoryName = computed(() => {
+
     return (categoryId) => {
       const found = categories.value.find((c) => c.id === String(categoryId))
       return found ? found.name : '기타'
