@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { userService, characterService, transactionService } from '../api/services'
+import { useTransactionStore } from '../transaction-history/TransactionStore'
 
 export const useHomeStore = defineStore('Home', () => {
   const summary = reactive({ assets: 0, income: 0, expense: 0 })
@@ -72,7 +73,16 @@ export const useHomeStore = defineStore('Home', () => {
       }
 
       const response = await transactionService.addTransaction(payload)
-      const savedTx = response.data
+      let savedTx = response.data
+
+      // `savedTx`에는 category_id만 있으므로, 화면 표시에 필요한 category 이름을 추가합니다.
+      const transactionStore = useTransactionStore()
+      if (transactionStore.categories.length === 0) {
+        await transactionStore.fetchCategories()
+      }
+      if (savedTx.category_id) {
+        savedTx.category = transactionStore.getCategoryName(savedTx.category_id)
+      }
 
       transactions.value.unshift(savedTx)
 

@@ -1,5 +1,7 @@
 <script setup>
 import GlobalNavigationBar from './components/GlobalNavigationBar.vue'
+import LaunchScreen from './components/LaunchScreen.vue'
+import { ref } from 'vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
@@ -9,16 +11,28 @@ const hideNavRoutes = ['login', 'register'] // router/index.js에 설정한 name
 
 // 현재 페이지가 hideNavRoutes에 포함되지 않을 때만 true
 const showNavbar = computed(() => !hideNavRoutes.includes(route.name))
+
+// 초기 상태는 로딩중(true)
+const isLoading = ref(true)
+
+// LaunchScreen에서 3.5초 뒤에 emit('complete')를 쏘면 이 함수가 실행됩니다.
+const onLaunchComplete = () => {
+  isLoading.value = false
+}
 </script>
 
 <template>
-  <div v-if="showNavbar">
-    <GlobalNavigationBar />
-  </div>
+  <LaunchScreen v-if="isLoading" @complete="onLaunchComplete" />
 
-  <main class="content">
-    <RouterView />
-  </main>
+  <div v-else class="main-content">
+    <div v-if="showNavbar">
+      <GlobalNavigationBar />
+    </div>
+
+    <main class="content">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style>

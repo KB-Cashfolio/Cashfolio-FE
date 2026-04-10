@@ -1,10 +1,10 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useTransactionStore } from './TransactionStore'
+import { useTransactionStore } from '../transaction-history/TransactionStore' // 경로에 맞게 수정하세요
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 import AlertModal from '../components/AlertModal.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const store = useTransactionStore()
 
@@ -18,18 +18,19 @@ const editId = ref(null)
 const isDeleteModalShow = ref(false)
 const isAlertShow = ref(false)
 const alertMsg = ref('')
+const alertIcon = ref('💡')
 const targetId = ref(null)
 
 const selectedType = ref('1')
 
 const form = reactive({
+  id: '',
+  user_id: '1',
+  account_id: '',
+  category_id: '',
   date: new Date().toISOString().substr(0, 10),
   amount: '',
-  category_id: '',
-  account_id: '',
   memo: '',
-  user_id: '1',
-  id: '',
 })
 
 // 선택된 수입/지출(type_id)에 맞는 카테고리만 필터링
@@ -50,9 +51,14 @@ watch(selectedType, (newType) => {
 // --- Actions ---
 
 // 알림창 표시
-const showAlert = (msg) => {
+const showAlert = (msg, icon = '💡') => {
   alertMsg.value = msg
+  alertIcon.value = icon
   isAlertShow.value = true
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
 }
 
 // 삭제 관련
@@ -70,19 +76,17 @@ const confirmDelete = async () => {
 
 // 추가
 const handleAddTransaction = async () => {
-  if (!form.amount) return showAlert('금액을 입력해주세요.')
-  if (!form.category_id) return showAlert('카테고리를 입력해주세요.')
+  if (!form.amount || form.amount === 0) return showAlert('금액을 입력해주세요.', '⚠️')
 
   await store.addTransaction(form)
+  showAlert('내역이 저장되었습니다.', '🎉')
   resetForm()
 }
 
 // 수정 모드 진입
 const selectTransaction = (tx) => {
   Object.assign(form, tx)
-  // db.json 일부 데이터에 category로 들어가있는 예외 처리 (수정 시 id 부여)
-  if (tx.category && !tx.category_id) form.category_id = String(tx.category)
-  else form.category_id = String(tx.category_id)
+  form.category_id = String(tx.category_id)
   // 선택된 내역의 category_id를 바탕으로 수입/지출(selectedType) 역추산해서 맞추기
   const typeId = store.getCategoryType(form.category_id)
   if (typeId) {
@@ -96,17 +100,18 @@ const selectTransaction = (tx) => {
 
 // 수정 완료
 const handleUpdateTransaction = async () => {
-  // 수정 전 과거에 category 키워드를 썼다면 지워주고 db 스키마 통일
-  if ('category' in form) delete form.category
+  if (!form.amount || form.amount === 0) return showAlert('금액을 입력해주세요.', '⚠️')
+
   await store.updateTransaction(editId.value, form)
-  resetForm()
+  router.back() // 수정 완료 후 이전 페이지(거래 내역)로 이동합니다.
+}
+
+// 수정 취소
+const cancelEdit = () => {
+  router.back()
 }
 
 // 폼 초기화
-const cancelEdit = () => {
-  resetForm()
-}
-
 const resetForm = () => {
   editMode.value = false
   editId.value = null
@@ -123,6 +128,7 @@ const resetForm = () => {
   })
 }
 const route = useRoute()
+const router = useRouter()
 // --- Lifecycle ---
 onMounted(async () => {
   await store.fetchTransactions()
@@ -236,7 +242,7 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section>
+      <section v-if="!editMode">
         <div class="section-head">
           <h3>거래 내역</h3>
           <div class="sort-controls">
@@ -287,34 +293,18 @@ onMounted(async () => {
                 {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-'
                 }}{{ Number(tx.amount).toLocaleString() }}원
               </p>
-              <div style="margin-top: 4px; display: flex; gap: 4px; justify-content: flex-end">
-                <button
-                  @click="selectTransaction(tx)"
-                  class="badge"
-                  style="border: none; cursor: pointer"
-                >
-                  수정
-                </button>
-                <button
-                  @click="openDeleteModal(tx.id)"
-                  class="badge"
-                  style="border: none; cursor: pointer; background: #ffe4e6; color: #e11d48"
-                >
-                  삭제
-                </button>
-                <DeleteConfirmModal
-                  :show="isDeleteModalShow"
-                  @confirm="confirmDelete"
-                  @cancel="isDeleteModalShow = false"
-                />
-                <AlertModal :show="isAlertShow" :message="alertMsg" @close="isAlertShow = false" />
-              </div>
             </div>
           </div>
         </div>
       </section>
     </div>
+    <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
+    <DeleteConfirmModal
+      :show="isDeleteModalShow"
+      @confirm="confirmDelete"
+      @cancel="isDeleteModalShow = false"
+    />
   </div>
 </template>
 
-<style scoped src="@/assets/css/transaction.css"></style>
+<style scoped src="../assets/css/transaction.css"></style>

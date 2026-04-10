@@ -2,10 +2,11 @@
 defineProps({
   show: Boolean,
   title: { type: String, default: '알림' },
+  icon: { type: String, default: '💡' },
   message: { type: String, default: '' },
-});
+})
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close'])
 </script>
 
 <template>
@@ -13,9 +14,8 @@ const emit = defineEmits(['close']);
     <div v-if="show" class="modal-overlay" @click.self="emit('close')">
       <div class="modal-panel">
         <div class="modal-content">
-          <div class="info-icon">💡</div>
-          <h3>{{ title }}</h3>
-          <p>{{ message }}</p>
+          <div class="info-icon">{{ icon }}</div>
+          <h3>{{ message }}</h3>
         </div>
 
         <div class="modal-actions">
@@ -38,7 +38,7 @@ const emit = defineEmits(['close']);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 3000; /* 다른 모달들보다 항상 위에 있도록 z-index 값을 높입니다. */
   padding: 20px;
 }
 
@@ -54,6 +54,7 @@ const emit = defineEmits(['close']);
 
 .modal-content {
   padding: 32px 24px 20px;
+  word-break: keep-all;
   text-align: center;
 }
 
