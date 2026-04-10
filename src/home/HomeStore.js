@@ -95,81 +95,10 @@ export const useHomeStore = defineStore('Home', () => {
         summary.expense += amt
         summary.assets -= amt
       }
-
-      // 2. 🔥 경험치 추가 로직 (예: 거래 1건당 5% 상승)
-      let newExp = beggars.exp + 5
-      let newLevel = beggars.level
-
-      if (newExp >= 100) {
-        newLevel += 1
-        newExp -= 100
-        alert(`🎉 축하합니다! Lv.${newLevel}로 레벨업하셨습니다!`)
-      }
-
-      // 3. 🔥 서버에 유저 정보 업데이트 (userService 호출 필요)
-      await userService.updateAccount(loginUserId, {
-        current_exp: newExp,
-        beg_level: newLevel,
-      })
-
-      // 4. 스토어 상태 업데이트
-      beggars.exp = newExp
-      beggars.level = newLevel
       return true
     } catch (err) {
       console.error('거래 추가 실패:', err)
       return false
-    }
-  }
-
-  // 경험치 업데이트 핵심 로직
-  const updateExpAfterTransaction = async (amount) => {
-    const profileStore = useProfileStore() // 유저 정보 접근
-    const user = profileStore.user
-
-    if (!user || !user.daily_limit) return
-
-    // 1. 절약분 계산 (목표 - 실지출)
-    // 여기서는 '이번에 쓴 금액'이 아니라 '오늘 총 지출' 기준으로 계산하는 게 정확합니다.
-    const todaySpent = summary.expense + amount
-    const goal = user.daily_limit
-
-    // 2. 목표보다 적게 썼을 때만 경험치 부여
-    if (todaySpent < goal) {
-      const savingRatio = ((goal - todaySpent) / goal) * 100 // 아낀 비율 (%)
-
-      // 3. 너무 빨리 오르지 않게 0.1 곱하기 (지우님 의견 반영)
-      const earnedExp = Math.floor(savingRatio * 0.1)
-
-      if (earnedExp > 0) {
-        let nextExp = user.current_exp + earnedExp
-        let nextLevel = user.beg_level
-
-        // 4. 레벨업 처리 (100% 넘으면 레벨업)
-        while (nextExp >= 100) {
-          nextLevel++
-          nextExp -= 100
-          alert(`🎊 축하합니다! 절약의 고수! Lv.${nextLevel}로 레벨업!`)
-        }
-
-        // 5. DB 업데이트 (userService 이용)
-        try {
-          await userService.updateAccount(user.id, {
-            current_exp: nextExp,
-            beg_level: nextLevel,
-          })
-
-          // 스토어 상태도 즉시 업데이트하여 화면에 반영
-          profileStore.user.current_exp = nextExp
-          profileStore.user.beg_level = nextLevel
-
-          console.log(`경험치 획득: +${earnedExp}% (현재: ${nextExp}%)`)
-        } catch (err) {
-          console.error('경험치 저장 실패:', err)
-        }
-      }
-    } else {
-      console.log('목표 금액 초과로 경험치를 획득하지 못했습니다. 💪')
     }
   }
 
