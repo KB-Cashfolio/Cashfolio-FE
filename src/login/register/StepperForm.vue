@@ -76,7 +76,6 @@ const userId = computed(() => authStore.user?.id)
 
 const formData = reactive({
   nickname: '',
-  isAccountLinked: false,
   assets: null,
   dailyLimit: null,
 })

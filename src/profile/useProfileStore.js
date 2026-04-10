@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia'
 import api from '@/api/index'
-import { userService, accountService, characterService } from '@/api/services' // 경로 확인!
+import { userService, characterService } from '@/api/services' // 경로 확인!
 
 export const useProfileStore = defineStore('profile', {
   state: () => ({
     // 서버 연결 전 보여줄 목업(Mock) 데이터
     user: null,
-    accounts: [], // 🆕 계좌 목록을 담을 배열 추가
     character: null,
     loading: false,
     currentUserId: null, // 🆕 기본값을 'a1'으로 두되, 나중에 로그인 시 변경 가능
@@ -20,17 +19,13 @@ export const useProfileStore = defineStore('profile', {
         // 1. 유저 정보와 계좌 정보를 동시에 호출
         const targetId = String(userId)
 
-        const [userRes, accountsRes, beggarsRes] = await Promise.all([
+        const [userRes, beggarsRes] = await Promise.all([
           userService.getUser(targetId),
-          accountService.getAccountsByUserId(targetId),
           characterService.getCharacterList(), // 엔드포인트가 /beggars로 설정된 서비스
         ])
 
         this.user = userRes.data
-        this.accounts = accountsRes.data // 🆕 받아온 계좌 배열 저장
         this.currentUserId = targetId // 성공 시 현재 ID 업데이트
-
-        console.log('불러온 계좌 정보:', this.accounts) // 확인용
 
         // 🆕 유저 레벨에 맞는 캐릭터 데이터 찾기
         if (this.user && beggarsRes.data) {
