@@ -62,28 +62,50 @@
           아직 거지가 아니신가요? <router-link to="/register">회원가입</router-link>
         </p>
       </footer>
+      <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/login/register/RegisterStore'
+import AlertModal from '../components/AlertModal.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 
 const { loginForm, loginErrors, loginShake, isLoading } = storeToRefs(auth)
 
+const isAlertShow = ref(false)
+const alertMsg = ref('')
+const alertIcon = ref('💡')
+const loginSucceeded = ref(false)
+
+const showAlert = (message, icon = '💡') => {
+  alertMsg.value = message
+  isAlertShow.value = true
+  alertIcon.value = icon
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (loginSucceeded.value) {
+    router.push('/')
+  }
+}
+
 const handleLogin = async () => {
+  loginSucceeded.value = false
   const result = await auth.login()
 
   if (result.success) {
-    alert('환영합니다!')
-    router.push('/')
+    loginSucceeded.value = true
+    showAlert('환영합니다!', '👋')
   } else {
-    alert(result.message)
+    showAlert('이메일 또는 비밀번호가 일치하지 않습니다.')
   }
 }
 </script>

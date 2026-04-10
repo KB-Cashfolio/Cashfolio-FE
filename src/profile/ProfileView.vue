@@ -107,7 +107,7 @@
 
         <div style="margin-top: 30px">
           <button
-            @click="handleLogout"
+            @click="openLogoutModal"
             class="quick-btn"
             style="width: 100%; background: #e2e8f0; color: #475569; box-shadow: none"
           >
@@ -116,13 +116,19 @@
         </div>
       </div>
     </div>
+    <LogoutConfirmModal
+      :show="isLogoutModalVisible"
+      @confirm="confirmLogout"
+      @cancel="cancelLogout"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from './useProfileStore'
+import LogoutConfirmModal from '../components/LogoutConfirmModal.vue'
 
 const router = useRouter()
 // 🔥 템플릿에서 'profileStore'를 사용하기 위해 반드시 변수 선언!
@@ -131,12 +137,19 @@ const profileStore = useProfileStore()
 const formatCurrency = (value) =>
   value !== undefined ? `${new Intl.NumberFormat('ko-KR').format(value)}원` : '0원'
 
-const handleLogout = () => {
-  if (confirm('로그아웃 하시겠습니까?')) {
-    profileStore.clearUser()
-    localStorage.clear()
-    router.push('/login')
-  }
+const isLogoutModalVisible = ref(false)
+
+const openLogoutModal = () => {
+  isLogoutModalVisible.value = true
+}
+
+const confirmLogout = () => {
+  profileStore.clearUser()
+  localStorage.clear()
+  router.push('/login')
+}
+const cancelLogout = () => {
+  isLogoutModalVisible.value = false
 }
 
 onMounted(() => {

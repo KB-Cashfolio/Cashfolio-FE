@@ -39,7 +39,7 @@ const goBack = () => {
     </div>
 
     <div class="header-section center">
-      <h1 class="title">Cashfolio</h1>
+      <h1 class="title">우아한 거지들</h1>
     </div>
 
     <div class="header-section right">
@@ -65,7 +65,6 @@ const goBack = () => {
         <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link"
           >거래내역</RouterLink
         >
-        <RouterLink to="/updateTx" @click="closeMenu" class="menu-link">거래 내역 등록</RouterLink>
         <RouterLink to="/profile" @click="closeMenu" class="menu-link">프로필</RouterLink>
       </nav>
     </transition>
