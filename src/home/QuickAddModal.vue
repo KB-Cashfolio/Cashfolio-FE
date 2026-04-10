@@ -28,15 +28,6 @@
         </div>
 
         <div class="field">
-          <label>계좌</label>
-          <select v-model="newTx.account_id">
-            <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
-              {{ transactionStore.getAccountName(acc.id) }}
-            </option>
-          </select>
-        </div>
-
-        <div class="field">
           <label>메모</label>
           <input v-model="newTx.memo" placeholder="상세 내용 (선택)" />
         </div>
