@@ -36,7 +36,11 @@
           </div>
           <div class="detail-row">
             <span class="label">금액</span>
-            <strong :class="store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'">
+            <strong
+              :class="
+                store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'
+              "
+            >
               {{ store.getCategoryType(selectedDetail.category_id) === '1' ? '+' : '-' }}
               {{ Number(selectedDetail.amount).toLocaleString() }}원
             </strong>
@@ -47,8 +51,8 @@
         </div>
 
         <div class="modal-btns mt-20">
-          <button class="btn-cancel" @click="openDeleteModal(selectedDetail.id)">삭제</button>
           <button class="btn-save" @click="goToUpdate(selectedDetail)">수정</button>
+          <button class="btn-cancel" @click="openDeleteModal(selectedDetail.id)">삭제</button>
         </div>
       </section>
 
@@ -65,16 +69,29 @@
             @click="selectedDetail = tx"
           >
             <div class="tx-left">
-              <div :class="['tx-icon', store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+              <div
+                :class="[
+                  'tx-icon',
+                  store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+                ]"
+              >
                 {{ store.getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
                 <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ store.getCategoryName(tx.category_id) }} · {{ tx.date }}</div>
+                <div class="tx-meta">
+                  {{ store.getCategoryName(tx.category_id) }} · {{ tx.date }}
+                </div>
               </div>
             </div>
-            <div :class="['tx-amount', store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
-              {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-' }}{{ Number(tx.amount).toLocaleString() }}원
+            <div
+              :class="[
+                'tx-amount',
+                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+              ]"
+            >
+              {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-'
+              }}{{ Number(tx.amount).toLocaleString() }}원
             </div>
           </div>
 
