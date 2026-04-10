@@ -109,6 +109,8 @@ const handleNext = async () => {
     }
     // 2. 최종 데이터 전송
     try {
+      // 🆕 오늘 날짜 가져오기 (YYYY-MM-DD 형식)
+      const todayStr = new Date().toISOString().split('T')[0]
       // 서버 데이터 구조에 맞게 매핑
       const updateData = {
         username: formData.nickname,
@@ -117,6 +119,8 @@ const handleNext = async () => {
         total_income: formData.assets, // 초기 자산을 총 수입으로 잡거나 필드 추가
         beg_level: 1,
         current_exp: 0,
+        join_date: todayStr, // 🔥 여기! 가입일을 오늘로 저장합니다.
+        last_settled_date: todayStr, // 정산 시작점도 오늘로 맞춤
       }
 
       console.log(updateData)

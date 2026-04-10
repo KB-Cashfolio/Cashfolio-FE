@@ -63,8 +63,12 @@ export const useTransactionStore = defineStore('transaction', () => {
 
   // 거래 내역 가져오기
   const fetchTransactions = async () => {
+    const userData = JSON.parse(localStorage.getItem('user'))
+    if (!userData) return
+
     try {
-      const res = await api.get('/transactions')
+      // 🆕 API 호출 시 user_id를 쿼리 스트링으로 전달하여 내 것만 가져옴
+      const res = await api.get(`/transactions?user_id=${userData.id}`)
       transactions.value = res.data
     } catch (err) {
       console.error('거래내역 로드 실패', err)

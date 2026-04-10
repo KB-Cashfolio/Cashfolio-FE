@@ -22,9 +22,15 @@ const targetId = ref(null)
 
 const selectedType = ref('1')
 
+// 1. 유저 ID를 가져오는 유틸리티 함수 (script setup 상단에 두면 편해요)
+const getLoginUserId = () => {
+  const userData = localStorage.getItem('user')
+  return userData ? JSON.parse(userData).id : null
+}
+
 const form = reactive({
   id: '',
-  user_id: '1',
+  user_id: getLoginUserId(),
   account_id: '',
   category_id: '',
   date: new Date().toISOString().substr(0, 10),
@@ -114,7 +120,7 @@ const resetForm = () => {
     amount: '',
     category_id: filteredCategories.value.length > 0 ? filteredCategories.value[0].id : '',
     memo: '',
-    user_id: '0Lasf-tsJc',
+    user_id: getLoginUserId(),
     account_id: accounts.value.length > 0 ? accounts.value[0].id : '',
     id: '',
   })

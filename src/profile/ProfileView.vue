@@ -152,13 +152,16 @@ const cancelLogout = () => {
   isLogoutModalVisible.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
   const userData = localStorage.getItem('user')
   if (userData) {
     const user = JSON.parse(userData)
-    profileStore.fetchUserProfile(user.id)
-  } else {
-    router.push('/login')
+
+    // 1. 기본 정보 및 카테고리 로드
+    await profileStore.fetchUserProfile(user.id)
+
+    // 2. [핵심] 들어올 때마다 과거 내역 싹 다 훑어서 경험치 맞추기
+    await profileStore.recalculateTotalExp(user.id)
   }
 })
 </script>

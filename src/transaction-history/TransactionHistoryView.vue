@@ -118,6 +118,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTransactionStore } from './TransactionStore'
+import { useProfileStore } from '../profile/useProfileStore'
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 
 const store = useTransactionStore()
@@ -200,6 +201,16 @@ onMounted(async () => {
   await store.fetchTransactions()
   if (store.categories.length === 0) {
     await store.fetchCategories()
+  }
+
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    const user = JSON.parse(userData)
+    const profileStore = useProfileStore() // 프로필 스토어 가져오기
+
+    // 유저 정보(daily_limit, last_settled_date)를 최신화한 뒤 정산 실행
+    await profileStore.fetchUserProfile(user.id)
+    await profileStore.recalculateTotalExp(user.id)
   }
 })
 </script>
