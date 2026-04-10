@@ -9,7 +9,7 @@ import { useRoute, useRouter } from 'vue-router'
 const store = useTransactionStore()
 
 // Store의 반응형 상태를 View에서 바로 사용하기 위해 추출
-const { inandout, accounts, categories, currentSort, displayTransactions } = storeToRefs(store)
+const { inandout, categories, currentSort, displayTransactions } = storeToRefs(store)
 
 // UI/로컬 상태 관리
 const editMode = ref(false)
@@ -31,7 +31,6 @@ const getLoginUserId = () => {
 const form = reactive({
   id: '',
   user_id: getLoginUserId(),
-  account_id: '',
   category_id: '',
   date: new Date().toISOString().substr(0, 10),
   amount: '',
@@ -121,7 +120,6 @@ const resetForm = () => {
     category_id: filteredCategories.value.length > 0 ? filteredCategories.value[0].id : '',
     memo: '',
     user_id: getLoginUserId(),
-    account_id: accounts.value.length > 0 ? accounts.value[0].id : '',
     id: '',
   })
 }
@@ -132,8 +130,6 @@ onMounted(async () => {
   await store.fetchTransactions()
   await store.fetchInAndOut()
   await store.fetchCategories()
-  await store.fetchAccounts()
-  await store.fetchBanks()
 
   const targetId = route.query.id
   if (targetId) {
@@ -145,10 +141,6 @@ onMounted(async () => {
     }
   }
 
-  // 초기 등록 시 첫 번째 계좌가 자동으로 선택되도록 설정
-  if (accounts.value.length > 0 && !form.account_id) {
-    form.account_id = accounts.value[0].id
-  }
   if (filteredCategories.value.length > 0 && !form.category_id) {
     form.category_id = filteredCategories.value[0].id
   }
@@ -199,15 +191,6 @@ onMounted(async () => {
                 </option>
               </select>
             </div>
-          </div>
-
-          <div class="status-item">
-            <div class="status-label-row"><span>계좌</span></div>
-            <select v-model="form.account_id" class="custom-input">
-              <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
-                {{ store.getAccountName(acc.id) }}
-              </option>
-            </select>
           </div>
 
           <div class="status-item">
@@ -274,10 +257,7 @@ onMounted(async () => {
                 <p class="tx-title">
                   {{ store.getCategoryName(tx.category_id) }}
                 </p>
-                <p class="tx-meta">
-                  {{ tx.date }} | {{ store.getAccountName(tx.account_id) }} |
-                  {{ tx.memo }}
-                </p>
+                <p class="tx-meta">{{ tx.date }} | {{ tx.memo }}</p>
               </div>
             </div>
 
