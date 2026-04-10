@@ -207,7 +207,7 @@ export const useAuthStore = defineStore('auth', () => {
   ========================= */
   const login = async () => {
     const ok = validateLogin('email') && validateLogin('password')
-    if (!ok) return { success: false }
+    if (!ok) throw new Error('입력값 오류')
 
     isLoading.value = true
 
@@ -224,8 +224,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       return result
     } catch (err) {
-      handleClientError(err)
-      return { success: false, message: '서버 오류' }
+      throw err
     } finally {
       isLoading.value = false
     }
