@@ -1,5 +1,5 @@
 import api from './index'
-import { AUTH_MESSAGES } from '@/utils/ErrorMessage'
+import { AUTH_MESSAGES } from '@/utils/errorMessage'
 
 // 유저/계좌 서비스
 export const userService = {
@@ -7,9 +7,11 @@ export const userService = {
   updateUsername: (id, newUsername) => api.patch(`/users/${id}`, { username: newUsername }),
   updateEmail: (id, newEmail) => api.patch(`/users/${id}`, { email: newEmail }),
   updateAccount: (id, data) => api.patch(`/users/${id}`, data),
+  updateUser: (id, data) => api.patch(`/users/${id}`, data),
 }
 
 export const accountService = {
+  createAccount: (accountData) => api.post('/accounts', accountData),
   getAccountsByUserId: (userId) => api.get(`/accounts?user_id=${String(userId)}`),
 }
 
