@@ -53,7 +53,7 @@ export const useHomeStore = defineStore('Home', () => {
       transactions.value = Array.isArray(resTransactions.data) ? resTransactions.data : []
       console.log('데이터 로드 완료 (사용자:', loginUserId, ')')
     } catch (err) {
-      console.error('데이터 로드 실패:', err)
+      handleClientError(err)
     }
   }
 
@@ -97,7 +97,7 @@ export const useHomeStore = defineStore('Home', () => {
       }
       return true
     } catch (err) {
-      console.error('거래 추가 실패:', err)
+      handleClientError(err)
       return false
     }
   }

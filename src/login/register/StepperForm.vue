@@ -82,6 +82,7 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/api/services'
 import { useAuthStore } from '@/login/register/RegisterStore'
+import { handleClientError } from '@/utils/errorHandler'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -119,7 +120,6 @@ const handleNext = async () => {
         current_exp: 0,
       }
 
-      console.log(updateData)
       await authService.updateUserInfo(userId.value, updateData) // Axios 통신
 
       // 🆕 스토어 및 로컬스토리지 최신화 (프로필 페이지 등에서 즉시 반영되도록)
@@ -130,7 +130,7 @@ const handleNext = async () => {
       alert('우아한 거지가 되신 것을 축하드립니다! 🎉')
       router.push('/') // 메인 대시보드로 이동
     } catch (error) {
-      alert('데이터 저장 중 오류가 발생했습니다.')
+      handleClientError(error)
     }
   }
 }
