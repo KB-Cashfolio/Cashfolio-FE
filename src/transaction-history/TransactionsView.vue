@@ -18,6 +18,7 @@ const editId = ref(null)
 const isDeleteModalShow = ref(false)
 const isAlertShow = ref(false)
 const alertMsg = ref('')
+const alertIcon = ref('💡')
 const targetId = ref(null)
 
 const selectedType = ref('1')
@@ -50,9 +51,14 @@ watch(selectedType, (newType) => {
 // --- Actions ---
 
 // 알림창 표시
-const showAlert = (msg) => {
+const showAlert = (msg, icon = '💡') => {
   alertMsg.value = msg
+  alertIcon.value = icon
   isAlertShow.value = true
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
 }
 
 // 삭제 관련
@@ -70,10 +76,10 @@ const confirmDelete = async () => {
 
 // 추가
 const handleAddTransaction = async () => {
-  if (!form.amount) return showAlert('금액을 입력해주세요.')
-  if (!form.category_id) return showAlert('카테고리를 입력해주세요.')
+  if (!form.amount || form.amount === 0) return showAlert('금액을 입력해주세요.', '⚠️')
 
   await store.addTransaction(form)
+  showAlert('내역이 저장되었습니다.', '🎉')
   resetForm()
 }
 
@@ -94,6 +100,8 @@ const selectTransaction = (tx) => {
 
 // 수정 완료
 const handleUpdateTransaction = async () => {
+  if (!form.amount || form.amount === 0) return showAlert('금액을 입력해주세요.', '⚠️')
+
   await store.updateTransaction(editId.value, form)
   router.back() // 수정 완료 후 이전 페이지(거래 내역)로 이동합니다.
 }
@@ -290,6 +298,12 @@ onMounted(async () => {
         </div>
       </section>
     </div>
+    <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
+    <DeleteConfirmModal
+      :show="isDeleteModalShow"
+      @confirm="confirmDelete"
+      @cancel="isDeleteModalShow = false"
+    />
   </div>
 </template>
 
