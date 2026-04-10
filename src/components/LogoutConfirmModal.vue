@@ -1,25 +1,26 @@
 <script setup>
 defineProps({
   show: Boolean,
-  title: { type: String, default: '알림' },
-  icon: { type: String, default: '💡' },
-  message: { type: String, default: '' },
+  title: { type: String, default: '로그아웃' },
+  description: { type: String, default: '정말 로그아웃 하시겠습니까?' },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['confirm', 'cancel'])
 </script>
 
 <template>
   <Transition name="fade">
-    <div v-if="show" class="modal-overlay" @click.self="emit('close')">
+    <div v-if="show" class="modal-overlay" @click.self="emit('cancel')">
       <div class="modal-panel">
         <div class="modal-content">
-          <div class="info-icon">{{ icon }}</div>
-          <h3>{{ message }}</h3>
+          <div class="warning-icon">👋</div>
+          <h3>{{ title }}</h3>
+          <p>{{ description }}</p>
         </div>
 
         <div class="modal-actions">
-          <button class="btn-confirm" @click="emit('close')">확인</button>
+          <button class="btn-cancel" @click="emit('cancel')">취소</button>
+          <button class="btn-delete" @click="emit('confirm')">로그아웃</button>
         </div>
       </div>
     </div>
@@ -38,7 +39,7 @@ const emit = defineEmits(['close'])
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 999;
   padding: 20px;
 }
 
@@ -54,11 +55,10 @@ const emit = defineEmits(['close'])
 
 .modal-content {
   padding: 32px 24px 20px;
-  word-break: keep-all;
   text-align: center;
 }
 
-.info-icon {
+.warning-icon {
   font-size: 40px;
   margin-bottom: 16px;
 }
@@ -78,12 +78,14 @@ p {
 }
 
 .modal-actions {
-  padding: 16px 20px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 20px;
   background: #f8fafc;
 }
 
 button {
-  width: 100%;
   border: none;
   padding: 14px;
   border-radius: 16px;
@@ -93,15 +95,22 @@ button {
   transition: transform 0.1s;
 }
 
-.btn-confirm {
-  background: #0f172a;
+button:active {
+  transform: scale(0.96);
+}
+
+.btn-cancel {
+  background: #fff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-delete {
+  background: #e11d48;
   color: #fff;
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
+/* 애니메이션 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
