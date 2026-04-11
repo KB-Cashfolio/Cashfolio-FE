@@ -40,14 +40,14 @@ const emit = defineEmits(['confirm', 'cancel'])
   align-items: center;
   justify-content: center;
   z-index: 999;
-  padding: 20px;
+  padding: var(--space-lg);
 }
 
 .modal-panel {
-  background: #fff;
+  background: var(--color-white);
   width: 100%;
   max-width: 320px;
-  border-radius: 28px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
@@ -60,61 +60,65 @@ const emit = defineEmits(['confirm', 'cancel'])
 
 .warning-icon {
   font-size: 40px;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-xl);
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text-main);
 }
 
 p {
   margin: 0;
-  font-size: 14px;
-  color: #64748b;
+  font-size: var(--text-md);
+  color: var(--color-text-sub);
   line-height: 1.5;
 }
 
+/* 🔥 버튼 영역 */
 .modal-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 20px;
-  background: #f8fafc;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-bg);
 }
 
 button {
   border: none;
   padding: 14px;
-  border-radius: 16px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s ease;
 }
 
 button:active {
   transform: scale(0.96);
 }
 
+/* 🔥 취소 버튼 */
 .btn-cancel {
-  background: #fff;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--color-white);
+  color: var(--color-text-sub);
+  border: 1px solid var(--color-border);
 }
 
+/* 🔥 삭제 버튼 (핵심) */
 .btn-delete {
-  background: #e11d48;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-white);
 }
 
-/* 애니메이션 */
+/* 🔥 애니메이션 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

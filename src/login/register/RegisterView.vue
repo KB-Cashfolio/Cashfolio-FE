@@ -120,7 +120,6 @@ const handleSignup = async () => {
 </script>
 
 <style scoped>
-/* 흔들림 애니메이션 키프레임 */
 @keyframes shake {
   0%,
   100% {
@@ -140,51 +139,57 @@ const handleSignup = async () => {
   animation: shake 0.4s ease-in-out;
 }
 
-/* 에러 테두리 스타일 */
+/* 🔥 에러 상태 */
 .error-border {
   border-color: var(--color-error) !important;
-  background-color: #fff5f5 !important; /* 살짝 붉은 배경으로 강조 */
+  background-color: rgba(239, 68, 68, 0.08) !important;
 }
 
-/* 기존 스타일 유지 및 보완 */
+/* 🔥 입력 그룹 */
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 5px;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
 }
 
 .input-group label {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-sub);
 }
 
+/* 🔥 인풋 */
 .input-group input {
   height: 48px;
   padding: 0 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-bg);
+  font-size: var(--text-md);
   transition:
-    border-color 0.2s,
-    background-color 0.2s;
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+/* 🔥 포커스 UX 강화 */
 .input-group input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: white;
+  background: var(--color-white);
+  box-shadow: 0 0 0 2px var(--color-primary-alpha);
 }
 
+/* 🔥 에러 메시지 */
 .error-text {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-error);
   margin-top: 2px;
   font-weight: 500;
 }
 
-/* 나머지 스타일 (주석 생략) */
+/* 🔥 뒤로가기 버튼 */
 .back-btn {
   background: none;
   border: none;
@@ -192,24 +197,32 @@ const handleSignup = async () => {
   cursor: pointer;
   color: var(--color-text-sub);
 }
+
+/* 🔥 헤더 */
 .signup-header h1 {
-  font-size: 24px;
+  font-size: var(--text-xl);
   font-weight: 800;
   color: var(--color-text-main);
 }
+
+/* 🔥 폼 레이아웃 */
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-lg);
 }
+
+/* 🔥 약관 영역 */
 .agreement-section {
   background: var(--color-bg);
-  padding: 15px;
+  padding: var(--space-md);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
+
+/* 🔥 제출 버튼 */
 .submit-btn {
   height: 55px;
   background: var(--color-primary);
@@ -217,11 +230,22 @@ const handleSignup = async () => {
   border: none;
   border-radius: var(--radius-md);
   font-weight: 700;
+  font-size: var(--text-md);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
+
+/* 클릭 효과 */
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+/* 비활성 상태 */
 .submit-btn:disabled {
-  background: #cbd5e1;
+  background: var(--color-border);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 </style>

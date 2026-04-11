@@ -39,14 +39,14 @@ const emit = defineEmits(['close'])
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: var(--space-lg);
 }
 
 .modal-panel {
-  background: #fff;
+  background: var(--color-white);
   width: 100%;
   max-width: 320px;
-  border-radius: 28px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s ease-out;
@@ -60,51 +60,52 @@ const emit = defineEmits(['close'])
 
 .info-icon {
   font-size: 40px;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-xl);
   font-weight: 800;
-  color: #0f172a;
+  color: var(--color-text-main);
 }
 
 p {
   margin: 0;
-  font-size: 14px;
-  color: #64748b;
+  font-size: var(--text-md);
+  color: var(--color-text-sub);
   line-height: 1.5;
 }
 
 .modal-actions {
-  padding: 16px 20px 20px;
-  background: #f8fafc;
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  background: var(--color-bg);
 }
 
 button {
   width: 100%;
   border: none;
   padding: 14px;
-  border-radius: 16px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s ease;
 }
 
 .btn-confirm {
-  background: #0f172a;
-  color: #fff;
+  background: var(--color-text-main);
+  color: var(--color-white);
 }
 
 button:active {
   transform: scale(0.98);
 }
 
+/* 🔥 페이드 애니메이션 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
@@ -112,6 +113,7 @@ button:active {
   opacity: 0;
 }
 
+/* 🔥 슬라이드 애니메이션 */
 @keyframes slideUp {
   from {
     transform: translateY(20px);

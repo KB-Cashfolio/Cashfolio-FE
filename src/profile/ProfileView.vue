@@ -167,59 +167,72 @@ onMounted(async () => {
 
 <style scoped src="../assets/css/transaction.css"></style>
 <style scoped>
-/* 1. 페이지 전체 배경색 변경 */
+/* 🔥 페이지 테마 */
 .page {
-  background: #f9ffff !important; /* !important를 사용해 공용 설정보다 우선순위를 높입니다 */
+  background: var(--color-bg-soft);
 }
 
-/* 2. mini-card 및 category-card 배경색 흰색으로 변경 & 테두리 추가 */
+/* 🔥 카드 공통 스타일 */
 .mini-card,
 .transaction-item,
 .category-card {
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0; /* profile card와 비슷한 느낌의 테두리 추가 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); /* 은은한 그림자로 입체감 부여 */
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
-/* 3. 파란색 프로그레스 바 전용 스타일 (지난 대화 내용 유지) */
+/* 인터랙션 */
+.mini-card:active,
+.transaction-item:active,
+.category-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-card-active);
+}
+
+/* 🔥 블루 프로그레스 (커스텀 테마) */
 .blue-track {
   height: 10px;
-  background: #eff6ff;
+  background: var(--color-blue-bg);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .blue-bar {
   height: 100%;
-  background: #60e2dc;
+  background: var(--color-accent);
   border-radius: 999px;
   transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 🔥 프로필 이미지 */
 .profile-img-inner {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
+/* 🔥 로딩 상태 */
 .loading-state {
   text-align: center;
-  padding: 80px 0;
-  color: #64748b;
+  padding: var(--space-2xl) 0;
+  color: var(--color-text-sub);
+  font-size: var(--text-md);
 }
 
-/* 아바타 텍스트 위치 및 강조 */
+/* 🔥 아바타 */
 .avatar-wrap {
   position: relative;
-  border: 2px solid #dbeafe; /* 아바타 테두리도 살짝 강조 */
+  border: 2px solid var(--color-accent-soft);
 }
 
 .avatar-text {
   position: absolute;
   bottom: 8px;
   font-weight: 800;
+  font-size: var(--text-sm);
+  color: var(--color-text-main);
 }
 </style>

@@ -134,18 +134,19 @@ const handleNext = async () => {
 </script>
 
 <style scoped>
-/* Stepper 전용 스타일 */
+/* 🔥 Stepper 전체 */
 .stepper-progress {
-  margin-bottom: 30px;
+  margin-bottom: var(--space-xl);
 }
 
+/* 진행 바 */
 .progress-track {
   width: 100%;
   height: 6px;
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: 999px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
 }
 
 .progress-bar {
@@ -154,67 +155,83 @@ const handleNext = async () => {
   transition: width 0.3s ease;
 }
 
+/* 단계 표시 */
 .step-indicator {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-sub);
   text-align: right;
   font-weight: 600;
 }
 
+/* 제목 */
 .step-title {
-  font-size: 22px;
+  font-size: var(--text-xl);
   font-weight: 800;
   color: var(--color-text-main);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
 }
 
+/* 설명 */
 .step-desc {
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-sub);
-  margin-bottom: 25px;
+  margin-bottom: var(--space-lg);
 }
 
+/* 🔥 계좌 연결 박스 */
 .account-check-box {
   background: var(--color-bg);
   border-radius: var(--radius-md);
-  padding: 30px;
+  padding: var(--space-xl);
   text-align: center;
   border: 2px dashed var(--color-border);
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
+/* 활성 상태 */
 .account-check-box.active {
   border-color: var(--color-primary);
   background: var(--color-primary-alpha);
 }
 
+/* 아이콘 */
 .account-check-box .icon {
   font-size: 40px;
-  margin-bottom: 15px;
+  margin-bottom: var(--space-md);
 }
 
+/* 🔥 링크 버튼 */
 .link-btn {
-  margin-top: 15px;
+  margin-top: var(--space-md);
   padding: 8px 20px;
-  border-radius: 20px;
+  border-radius: 999px;
   border: 1px solid var(--color-primary);
-  background: white;
+  background: var(--color-white);
   color: var(--color-primary);
   font-weight: 600;
+  font-size: var(--text-sm);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.active .link-btn {
+.link-btn:active {
+  transform: scale(0.96);
+}
+
+/* 활성 시 버튼 */
+.account-check-box.active .link-btn {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-white);
 }
 
+/* 🔥 버튼 그룹 */
 .btn-group {
   display: flex;
-  gap: 10px;
-  margin-top: 30px;
+  gap: var(--space-sm);
+  margin-top: var(--space-xl);
 }
 
+/* 이전 버튼 */
 .prev-btn {
   flex: 1;
   height: 55px;
@@ -223,9 +240,16 @@ const handleNext = async () => {
   border: none;
   border-radius: var(--radius-md);
   font-weight: 700;
+  font-size: var(--text-md);
   cursor: pointer;
+  transition: transform 0.1s ease;
 }
 
+.prev-btn:active {
+  transform: scale(0.97);
+}
+
+/* 🔥 다음/제출 버튼 */
 .auth-submit-btn {
   flex: 2;
   height: 55px;
@@ -233,13 +257,19 @@ const handleNext = async () => {
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 16px;
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+/* hover */
 .auth-submit-btn:hover {
   background: var(--color-primary-dark);
+}
+
+/* active */
+.auth-submit-btn:active {
+  transform: scale(0.97);
 }
 </style>

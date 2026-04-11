@@ -68,14 +68,13 @@ const startImageSequence = () => {
 </template>
 
 <style scoped>
-/* 배경 */
 .launch-screen {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,7 +82,7 @@ const startImageSequence = () => {
   z-index: 9999;
 }
 
-/* --- Phase 1: 로고 스타일 --- */
+/* --- Phase 1: 로고 --- */
 .logo-container {
   opacity: 0;
   transform: translateY(20px);
@@ -91,6 +90,7 @@ const startImageSequence = () => {
     opacity 1s ease-out,
     transform 1s ease-out;
 }
+
 .logo-container.fade-in {
   opacity: 1;
   transform: translateY(0);
@@ -101,56 +101,64 @@ const startImageSequence = () => {
   height: auto;
 }
 
-/* --- Phase 2: 시퀀스 및 로딩 텍스트 스타일 (기존과 동일) --- */
+/* --- Phase 2: 시퀀스 --- */
 .sequence-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: var(--space-xl);
 }
+
 .sequence-container.fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
 .sequence-image {
   width: auto;
   height: 180px;
 }
 
-/* 로딩 스피너 및 텍스트 */
+/* --- 로딩 영역 --- */
 .loading-text-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-sm);
 }
+
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #475569;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-text-sub);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
+
 .loading-text {
   text-align: center;
 }
+
 .primary-text {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #334155;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-sub);
   margin: 0;
 }
+
 .secondary-text {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin: 4px 0 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-xs) 0 0 0;
 }
 
+/* --- 애니메이션 --- */
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
