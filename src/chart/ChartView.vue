@@ -308,12 +308,13 @@ const pieChartOption = computed(() => {
     },
     legend: {
       bottom: '0%',
+      width: '98%',
       left: 'center',
       icon: 'circle',
-      itemGap: 20,
+      itemGap: 10,
       itemWidth: 12,
       itemHeight: 12,
-      textStyle: { fontSize: 13, color: '#475569', padding: [0, 0, 0, 4], fontFamily: 'Pretendard' }
+      textStyle: { fontSize: 13, color: '#475569', padding: [0, 0, 0, 2], fontFamily: 'Pretendard' }
     },
     series: [
       {
