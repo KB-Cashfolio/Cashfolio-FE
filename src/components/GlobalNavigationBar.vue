@@ -67,6 +67,7 @@ const goBack = () => {
         <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link"
           >거래내역</RouterLink
         >
+        <RouterLink to="/chart" @click="closeMenu" class="menu-link">chart</RouterLink>
         <RouterLink to="/profile" @click="closeMenu" class="menu-link">프로필</RouterLink>
       </nav>
     </transition>
