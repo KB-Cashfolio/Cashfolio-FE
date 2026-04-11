@@ -65,6 +65,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/api/services'
+import api from '@/api/index'
 import { useAuthStore } from '@/login/register/RegisterStore'
 
 const router = useRouter()
@@ -108,6 +109,15 @@ const handleNext = async () => {
 
       console.log(updateData)
       await authService.updateUserInfo(userId.value, updateData) // Axios 통신
+
+      // 2. 🔥 [핵심] 30만원을 '수입' 거래 내역으로 추가
+      await api.post('/transactions', {
+        user_id: userId.value,
+        category_id: '1', // '용돈' 혹은 '기타 수입' 카테고리 ID
+        date: todayStr,
+        amount: Number(formData.assets),
+        memo: '기초 자산', // 나중에 지우지 않도록 메모를 남김
+      })
 
       // 🆕 스토어 및 로컬스토리지 최신화 (프로필 페이지 등에서 즉시 반영되도록)
       const updatedUser = { ...authStore.user, ...updateData }
