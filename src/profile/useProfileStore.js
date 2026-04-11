@@ -123,20 +123,35 @@ export const useProfileStore = defineStore('profile', {
           this.categories = resCat.data
         }
 
+        // 2. [변경] 내 모든 거래내역을 "먼저" 가져와야 합니다.
+        const res = await api.get(`/transactions?user_id=${userId}`)
+        const allTxs = res.data || []
+
         const today = new Date()
-        const todayStr = today.toISOString().split('T')[0]
         const joinDate = new Date(this.user.join_date)
 
+        // 3. 🔥 시작 날짜(startDate) 결정
+        let startDate = joinDate // 기본값은 가입일
+
+        if (allTxs.length > 0) {
+          const sortedDates = allTxs
+            .map((tx) => tx.date)
+            .filter((date) => date) // 날짜가 없는 데이터 방지
+            .sort((a, b) => new Date(a) - new Date(b))
+
+          if (sortedDates.length > 0) {
+            const firstTxDate = new Date(sortedDates[0])
+            // 가입일과 첫 거래일 중 더 과거인 날짜를 선택
+            startDate = new Date(Math.min(joinDate, firstTxDate))
+          }
+        }
+
         // 1. 가입일부터 오늘까지 흐른 일수 계산 (최소 1일)
-        const diffTime = Math.abs(today - joinDate)
+        const diffTime = Math.abs(today - startDate)
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1
 
         // 2. 가입일부터 지금까지의 총 예산 (목표 소비량 * 흐른 일수)
         const totalBudget = (Number(this.user.daily_limit) || 20000) * diffDays
-
-        // 3. 내 모든 거래내역 가져오기
-        const res = await api.get(`/transactions?user_id=${userId}`)
-        const allTxs = res.data
 
         const totalSpent = allTxs
           .filter((tx) => {
@@ -156,7 +171,6 @@ export const useProfileStore = defineStore('profile', {
           const totalSavingRatio = ((totalBudget - totalSpent) / totalBudget) * 100
 
           // 경험치 산정: 절약률 1%당 경험치 10으로 환산 (지우님 취향껏 가중치 조절 가능!)
-          // 예: 50% 절약 중이면 500점 -> Lv.6 (경험치 0%)
           let totalAccumulatedExp = Math.floor(totalSavingRatio * 0.1)
 
           finalExp = totalAccumulatedExp
@@ -180,8 +194,9 @@ export const useProfileStore = defineStore('profile', {
           this.user = response.data
           localStorage.setItem('user', JSON.stringify(this.user))
           console.log(
-            `누적 재계산 완료: 예산 ${totalBudget}원 대비 ${totalSpent}원 지출 -> Lv.${finalLevel} (${finalExp}%)`,
+            `정산 기준일: ${startDate.toISOString().split('T')[0]}, 총 ${diffDays}일치 예산 적용`,
           )
+          console.log(`누적 재계산 완료: Lv.${finalLevel} (${finalExp}%)`)
         }
       } catch (err) {
         console.error('재계산 에러:', err)
