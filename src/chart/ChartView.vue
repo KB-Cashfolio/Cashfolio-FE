@@ -335,10 +335,38 @@ const lineChartOption = computed(() => {
   const isExpense = chartType.value === 'expense'
   const lineColor = isExpense ? '#e11d48' : '#1d4ed8'
   const areaColor = isExpense ? 'rgba(225, 29, 72, 0.1)' : 'rgba(29, 78, 216, 0.1)'
+  const labelText = isExpense ? '지출' : '수입' // ✨ 툴팁에 띄워줄 글씨
 
   return {
     grid: { top: 20, bottom: 20, left: 50, right: 10 },
-    tooltip: { trigger: 'axis', formatter: '{b}: {c}원' },
+
+    // ✨ 꺾은선 차트용 커스텀 툴팁
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e2e8f0',
+      borderWidth: 1,
+      padding: [12, 16], // 양옆 여백을 적당히 16px로 조정
+      borderRadius: 12,
+      extraCssText: 'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);',
+      formatter: (params) => {
+        // axis 트리거는 params가 배열로 들어옵니다. (우리는 선이 1개라 params[0]을 사용)
+        const data = params[0]
+        return `
+          <div style="display: flex; flex-direction: column; gap: 8px; font-family: 'Pretendard', sans-serif; min-width: 140px;">
+            <div style="font-size: 13px; color: #64748b; font-weight: 600;">${data.name}</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: ${data.color};"></span>
+                <span style="font-size: 14px; font-weight: 700; color: #475569;">${labelText}</span>
+              </div>
+              <span style="font-size: 16px; font-weight: 800; color: #0f172a;">${Number(data.value).toLocaleString()}원</span>
+            </div>
+          </div>
+        `
+      }
+    },
+
     xAxis: {
       type: 'category',
       data: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
