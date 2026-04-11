@@ -25,14 +25,7 @@ const goBack = () => {
   <header class="safe-header">
     <div class="header-section left">
       <button @click="goBack" class="nav-btn">
-        <svg
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-        >
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
@@ -46,14 +39,7 @@ const goBack = () => {
 
     <div class="header-section right">
       <button @click="toggleMenu" class="nav-btn">
-        <svg
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-        >
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -64,10 +50,8 @@ const goBack = () => {
     <transition name="slide">
       <nav v-if="isMenuOpen" class="dropdown-menu">
         <RouterLink to="/" @click="closeMenu" class="menu-link">홈</RouterLink>
-        <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link"
-          >거래내역</RouterLink
-        >
-        <RouterLink to="/chart" @click="closeMenu" class="menu-link">chart</RouterLink>
+        <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link">거래내역</RouterLink>
+        <RouterLink to="/chart" @click="closeMenu" class="menu-link">소비 리포트</RouterLink>
         <RouterLink to="/profile" @click="closeMenu" class="menu-link">프로필</RouterLink>
       </nav>
     </transition>
