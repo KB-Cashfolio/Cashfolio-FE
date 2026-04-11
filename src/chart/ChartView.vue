@@ -6,7 +6,6 @@
           <p class="eyebrow">Analysis</p>
           <h1>소비 리포트</h1>
         </div>
-        <button class="quick-btn" @click="fetchData">갱신</button>
       </header>
 
       <section class="panel">
