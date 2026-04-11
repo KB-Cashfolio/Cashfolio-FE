@@ -219,21 +219,25 @@ const currentMonthTotal = computed(() => {
 })
 
 const compareText = computed(() => {
-  // 1월(인덱스 0)은 이전 달(작년 12월) 데이터가 현재 배열에 없으므로 예외 처리
+  const currentTotal = currentMonthlyData.value[selectedMonth.value]
+
+  // ✨ 1. 이번 달 지출/수입이 아예 0원인 경우 가장 먼저 처리
+  if (currentTotal === 0) return '해당 월 데이터 없음'
+
+  // 2. 1월(인덱스 0)이라서 이전 달 데이터가 없는 경우
   if (selectedMonth.value === 0) return '이전 달 데이터 없음'
 
-  const currentTotal = currentMonthlyData.value[selectedMonth.value]
   const prevTotal = currentMonthlyData.value[selectedMonth.value - 1]
   const diff = currentTotal - prevTotal
 
   const actionWord = chartType.value === 'expense' ? '썼어요' : '벌었어요'
 
   if (diff > 0) {
-    return `지난달보다\n${diff.toLocaleString()}원 더 ${actionWord}`
+    return `지난달보다 \n${diff.toLocaleString()}원 더 ${actionWord}`
   } else if (diff < 0) {
-    return `지난달보다\n${Math.abs(diff).toLocaleString()}원 덜 ${actionWord}`
+    return `지난달보다 \n${Math.abs(diff).toLocaleString()}원 덜 ${actionWord}`
   } else {
-    return '지난달과 금액이 같아요 ➖'
+    return '지난달과 금액이 같아요'
   }
 })
 
