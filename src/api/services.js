@@ -17,7 +17,7 @@ export const userService = {
     return api.patch(`/users/${id}`, { email: newEmail })
   },
 
-  // 계좌 정보/계정 정보 수정
+  // 계정 정보 수정
   updateAccount(id, data) {
     return api.patch(`/users/${id}`, data)
   },

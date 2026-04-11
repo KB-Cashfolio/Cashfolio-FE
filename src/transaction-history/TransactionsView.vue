@@ -1,8 +1,7 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTransactionStore } from '../transaction-history/TransactionStore' // 경로에 맞게 수정하세요
-import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 import AlertModal from '../components/AlertModal.vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -79,18 +78,22 @@ const handleAddTransaction = async () => {
   if (!form.category_id) return showAlert('카테고리를 입력해주세요.')
 
   await store.addTransaction(form)
+  router.push('/transaction-history')
   resetForm()
 }
 
 // 수정 모드 진입
 const selectTransaction = (tx) => {
-  Object.assign(form, tx)
-  form.category_id = String(tx.category_id)
-  // 선택된 내역의 category_id를 바탕으로 수입/지출(selectedType) 역추산해서 맞추기
-  const typeId = store.getCategoryType(form.category_id)
+  // 1. 수입/지출 타입을 먼저 설정합니다. 이로 인해 watch가 실행될 예정입니다.
+  const typeId = store.getCategoryType(String(tx.category_id))
   if (typeId) {
     selectedType.value = typeId
   }
+
+  nextTick(() => {
+    Object.assign(form, tx)
+    form.category_id = String(tx.category_id)
+  })
 
   editMode.value = true
   editId.value = tx.id
@@ -99,6 +102,8 @@ const selectTransaction = (tx) => {
 
 // 수정 완료
 const handleUpdateTransaction = async () => {
+  if (!form.amount) return showAlert('금액을 입력해주세요.')
+  if (!form.category_id) return showAlert('카테고리를 입력해주세요.')
   await store.updateTransaction(editId.value, form)
   router.back() // 수정 완료 후 이전 페이지(거래 내역)로 이동합니다.
 }
@@ -112,7 +117,7 @@ const cancelEdit = () => {
 const resetForm = () => {
   editMode.value = false
   editId.value = null
-  selectedType.value = '1'
+  selectedType.value = ''
 
   Object.assign(form, {
     date: new Date().toISOString().substr(0, 10),
@@ -131,7 +136,8 @@ onMounted(async () => {
   await store.fetchInAndOut()
   await store.fetchCategories()
 
-  const targetId = route.query.id
+  const { id: targetId, date: selectedDate } = route.query
+
   if (targetId) {
     // TransactionHistoryView에서 거래내역 수정하기 누를 경우 - 해당 거래 내역 아이디 찾기
     const tx = store.transactions.find((item) => String(item.id) === String(targetId))
@@ -139,6 +145,9 @@ onMounted(async () => {
     if (tx) {
       selectTransaction(tx)
     }
+  } else if (selectedDate) {
+    // 캘린더에서 날짜를 선택하고 추가 버튼을 눌렀을 경우
+    form.date = selectedDate
   }
 
   if (filteredCategories.value.length > 0 && !form.category_id) {
@@ -166,32 +175,31 @@ onMounted(async () => {
 
           <div class="status-item">
             <div class="status-label-row"><span>금액</span></div>
-            <input
-              type="number"
-              v-model="form.amount"
-              placeholder="0"
-              class="custom-input amount-input"
-            />
+            <input type="number" v-model="form.amount" placeholder="0" class="custom-input amount-input" />
           </div>
 
-          <div class="asset-grid" style="margin-top: 0">
-            <div class="status-item">
-              <div class="status-label-row"><span>카테고리</span></div>
-              <select v-model="form.category_id" class="custom-input">
-                <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
-                  {{ c.name }}
-                </option>
-              </select>
-            </div>
-            <div class="status-item">
-              <div class="status-label-row"><span>수입/지출</span></div>
-              <select v-model="selectedType" class="custom-input">
-                <option v-for="item in inandout" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
+
+          <div class="status-item">
+            <div class="status-label-row"><span>수입/지출</span></div>
+            <div class="type-selector">
+              <button v-for="item in inandout" :key="item.id" :class="[
+                'type-btn',
+                { active: selectedType === item.id },
+                item.id === '1' ? 'income' : 'expense',
+              ]" @click="selectedType = item.id">
+                {{ item.name }}
+              </button>
             </div>
           </div>
+          <div class="status-item">
+            <div class="status-label-row"><span>카테고리</span></div>
+            <select v-model="form.category_id" class="custom-input">
+              <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
+                {{ c.name }}
+              </option>
+            </select>
+          </div>
+
 
           <div class="status-item">
             <div class="status-label-row"><span>메모</span></div>
@@ -200,43 +208,28 @@ onMounted(async () => {
         </div>
 
         <div style="margin-top: 20px">
-          <button
-            v-if="!editMode"
-            @click="handleAddTransaction"
-            class="quick-btn"
-            style="width: 100%"
-          >
+          <button v-if="!editMode" @click="handleAddTransaction" class="quick-btn" style="width: 100%">
             내역 저장하기
           </button>
           <div v-else style="display: flex; gap: 8px">
             <button @click="handleUpdateTransaction" class="quick-btn" style="width: 70%">
               수정 완료
             </button>
-            <button
-              @click="cancelEdit"
-              class="quick-btn"
-              style="width: 30%; background: #e2e8f0; color: #475569"
-            >
+            <button @click="cancelEdit" class="quick-btn" style="width: 30%; background: #e2e8f0; color: #475569">
               취소
             </button>
           </div>
         </div>
       </section>
 
-      <section v-if="!editMode">
+      <!-- <section v-if="!editMode">
         <div class="section-head">
           <h3>거래 내역</h3>
           <div class="sort-controls">
-            <button
-              :class="['sort-btn', { active: currentSort === 'date' }]"
-              @click="store.setSort('date')"
-            >
+            <button :class="['sort-btn', { active: currentSort === 'date' }]" @click="store.setSort('date')">
               최신순
             </button>
-            <button
-              :class="['sort-btn', { active: currentSort === 'amount' }]"
-              @click="store.setSort('amount')"
-            >
+            <button :class="['sort-btn', { active: currentSort === 'amount' }]" @click="store.setSort('amount')">
               금액순
             </button>
           </div>
@@ -245,12 +238,10 @@ onMounted(async () => {
         <div class="transaction-list">
           <div v-for="tx in displayTransactions" :key="tx.id" class="transaction-item">
             <div class="tx-left">
-              <div
-                :class="[
-                  'tx-icon',
-                  store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
-                ]"
-              >
+              <div :class="[
+                'tx-icon',
+                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+              ]">
                 {{ store.getCategoryName(tx.category_id).charAt(0) }}
               </div>
               <div>
@@ -262,19 +253,18 @@ onMounted(async () => {
             </div>
 
             <div style="text-align: right">
-              <p
-                :class="[
-                  'tx-amount',
-                  store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
-                ]"
-              >
+              <p :class="[
+                'tx-amount',
+                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+              ]">
                 {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-'
                 }}{{ Number(tx.amount).toLocaleString() }}원
               </p>
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
+      <AlertModal :show="isAlertShow" :message="alertMsg" @close="isAlertShow = false" />
     </div>
   </div>
 </template>

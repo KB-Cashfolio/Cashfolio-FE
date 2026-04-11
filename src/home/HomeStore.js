@@ -82,13 +82,14 @@ export const useHomeStore = defineStore('Home', () => {
       }
       if (savedTx.category_id) {
         savedTx.category = transactionStore.getCategoryName(savedTx.category_id)
+        savedTx.categoryType = transactionStore.getCategoryType(savedTx.category_id)
       }
 
       transactions.value.unshift(savedTx)
 
       // 자산 계산 반영
       const amt = Number(savedTx.amount)
-      if (savedTx.inandout_id === 'in') {
+      if (savedTx.categoryType === '1') {
         summary.income += amt
         summary.assets += amt
       } else {

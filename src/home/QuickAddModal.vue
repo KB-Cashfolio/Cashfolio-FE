@@ -5,18 +5,23 @@
 
       <div class="input-group">
         <div class="field">
-          <label>구분</label>
-          <select v-model="selectedType">
-            <option v-for="item in inandout" :key="item.id" :value="item.id">
-              {{ item.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="field">
           <label>금액</label>
           <input v-model.number="newTx.amount" type="number" placeholder="금액 입력" />
         </div>
+
+        <div class="field">
+          <label>구분</label>
+          <div class="type-selector">
+            <button v-for="item in inandout" :key="item.id" :class="[
+              'type-btn',
+              { active: selectedType === item.id },
+              item.id === '1' ? 'income' : 'expense',
+            ]" @click="selectedType = item.id">
+              {{ item.name }}
+            </button>
+          </div>
+        </div>
+
 
         <div class="field">
           <label>카테고리</label>
@@ -39,6 +44,7 @@
       </div>
     </div>
   </div>
+  <AlertModal :show="isAlertShow" :message="alertMsg" @close="isAlertShow = false" />
 </template>
 
 <script setup>
@@ -46,21 +52,29 @@ import { reactive, ref, onMounted, computed, watch } from 'vue'
 import { useHomeStore } from './HomeStore'
 import { useTransactionStore } from '../transaction-history/TransactionStore'
 import { storeToRefs } from 'pinia'
+import AlertModal from '../components/AlertModal.vue'
 
 const homeStore = useHomeStore()
 const transactionStore = useTransactionStore()
 const emit = defineEmits(['close'])
 
-const { accounts, categories, inandout } = storeToRefs(transactionStore)
+const { categories, inandout } = storeToRefs(transactionStore)
+const isAlertShow = ref(false)
+const alertMsg = ref('')
 
 const newTx = reactive({
   id: '',
-  user_id:'',
+  user_id: '',
   category_id: '',
   amount: null,
   date: '',
   memo: '',
 })
+
+const showAlert = (msg) => {
+  alertMsg.value = msg
+  isAlertShow.value = true
+}
 
 const selectedType = ref('2') // '2' for 지출 (expense)
 
@@ -78,8 +92,9 @@ watch(selectedType, () => {
 })
 
 const onSave = async () => {
-  if (!newTx.amount || newTx.amount <= 0) return alert('금액을 입력해주세요!')
-  if (!newTx.category_id) return alert('카테고리를 선택해주세요!')
+  if (!newTx.amount) {
+    return showAlert('금액을 입력해주세요.')
+  }
 
   const payload = {
     category_id: newTx.category_id,
@@ -102,14 +117,6 @@ onMounted(async () => {
   }
   if (categories.value.length === 0) {
     await transactionStore.fetchCategories()
-  }
-  if (accounts.value.length === 0) {
-    await transactionStore.fetchAccounts()
-    await transactionStore.fetchBanks()
-  }
-
-  if (accounts.value.length > 0 && !newTx.account_id) {
-    newTx.account_id = accounts.value[0].id
   }
 
   // 지출이 기본값이므로 지출의 첫번째 카테고리로 설정
@@ -138,7 +145,8 @@ onMounted(async () => {
   background: white;
   width: 90%;
   max-width: 380px;
-  padding: 24px; /* 살짝 줄임 */
+  padding: 24px;
+  /* 살짝 줄임 */
   border-radius: 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
@@ -152,7 +160,8 @@ onMounted(async () => {
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 필드 간 간격 */
+  gap: 10px;
+  /* 필드 간 간격 */
   margin-bottom: 20px;
 }
 
@@ -222,5 +231,40 @@ onMounted(async () => {
 .btn-save {
   background: #0f172a;
   color: white;
+}
+
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background-color: #f1f5f9;
+  padding: 5px;
+  border-radius: 16px;
+}
+
+.type-btn {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #64748b;
+}
+
+.type-btn.active.income {
+  background-color: #3b82f6;
+  /* 파란색 */
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.type-btn.active.expense {
+  background-color: #ef4444;
+  /* 빨간색 */
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 </style>
