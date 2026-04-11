@@ -166,11 +166,21 @@ export const useProfileStore = defineStore('profile', {
         let finalLevel = 1
         let finalExp = 0
 
-        if (totalSpent < totalBudget) {
-          // 절약률 = (남은 돈 / 전체 예산) * 100
-          const totalSavingRatio = ((totalBudget - totalSpent) / totalBudget) * 100
+        // 🔥 수정: 지출 내역이 하나도 없거나, 가입한 당일이면 경험치를 0으로 시작
+        // (진짜 '절약'을 증명하려면 최소한 지출 기록이 있거나 하루가 지나야 함)
+        const isFirstDay =
+          diffDays <= 1 &&
+          allTxs.filter((tx) => {
+            const foundCat = this.categories.find((c) => String(c.id) === String(tx.category_id))
+            return foundCat && String(foundCat.type_id) === '2' // 지출 내역이 있는지 확인
+          }).length === 0
 
-          // 경험치 산정: 절약률 1%당 경험치 10으로 환산 (지우님 취향껏 가중치 조절 가능!)
+        if (isFirstDay) {
+          finalLevel = 1
+          finalExp = 0
+        } else if (totalSpent < totalBudget) {
+          // 기존 절약 로직 실행
+          const totalSavingRatio = ((totalBudget - totalSpent) / totalBudget) * 100
           let totalAccumulatedExp = Math.floor(totalSavingRatio * 0.1)
 
           finalExp = totalAccumulatedExp
