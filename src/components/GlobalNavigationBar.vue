@@ -39,7 +39,9 @@ const goBack = () => {
     </div>
 
     <div class="header-section center">
-      <h1 class="title">우아한 거지들</h1>
+      <RouterLink to="/" class="title-link" @click="closeMenu">
+        <h1 class="title">우아한 거지들</h1>
+      </RouterLink>
     </div>
 
     <div class="header-section right">
@@ -108,6 +110,10 @@ const goBack = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.title-link {
+  text-decoration: none;
 }
 
 .nav-btn {

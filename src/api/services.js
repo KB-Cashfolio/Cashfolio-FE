@@ -17,7 +17,7 @@ export const userService = {
     return api.patch(`/users/${id}`, { email: newEmail })
   },
 
-  // 계좌 정보/계정 정보 수정
+  // 계정 정보 수정
   updateAccount(id, data) {
     return api.patch(`/users/${id}`, data)
   },
@@ -152,7 +152,7 @@ export const authService = {
 export const transactionService = {
   // 특정 사용자의 모든 거래 내역
   getTransactions(userId) {
-    return api.get(`/transactions?user_id=${userId}&_sort=id&_order=desc`)
+    return api.get(`/transactions?user_id=${userId}`)
   },
   // 지출/수입 내역 추가
   addTransaction(data) {
@@ -160,6 +160,6 @@ export const transactionService = {
   },
   // 특정 날짜 범위 검색 (예시)
   getTransactionsByDate(userId, date) {
-    return api.get(`/transactions?user_id=${userId}&date=${date}&inandout_id=2`)
+    return api.get(`/transactions?user_id=${userId}&date=${date}`)
   },
 }
