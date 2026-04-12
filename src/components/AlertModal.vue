@@ -94,7 +94,7 @@ button {
 }
 
 .btn-confirm {
-  background: var(--color-text-main);
+  background: var(--color-primary);
   color: var(--color-white);
 }
 
