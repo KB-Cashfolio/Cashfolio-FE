@@ -9,7 +9,13 @@
       </header>
 
       <section class="panel calendar-panel">
-        <VDatePicker v-model="selectedDate" expanded borderless transparent @dayclick="onDayClick" />
+        <VDatePicker
+          v-model="selectedDate"
+          expanded
+          borderless
+          transparent
+          @dayclick="onDayClick"
+        />
       </section>
 
       <button class="quick-btn primary-btn" @click="goToAdd">거래 내역 추가 하기</button>
@@ -25,13 +31,16 @@
             <span class="label">일시</span><strong>{{ selectedDetail.date }}</strong>
           </div>
           <div class="detail-row">
-            <span class="label">카테고리</span><span class="badge">{{ store.getCategoryName(selectedDetail.category_id)
-              }}</span>
+            <span class="label">카테고리</span
+            ><span class="badge">{{ store.getCategoryName(selectedDetail.category_id) }}</span>
           </div>
           <div class="detail-row">
             <span class="label">금액</span>
-            <strong :class="store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'
-              ">
+            <strong
+              :class="
+                store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'
+              "
+            >
               {{ store.getCategoryType(selectedDetail.category_id) === '1' ? '+' : '-' }}
               {{ Number(selectedDetail.amount).toLocaleString() }}원
             </strong>
@@ -53,13 +62,19 @@
         </div>
 
         <div class="transaction-list">
-          <div v-for="tx in filteredTransactions" :key="tx.id" class="transaction-item clickable"
-            @click="selectedDetail = tx">
+          <div
+            v-for="tx in filteredTransactions"
+            :key="tx.id"
+            class="transaction-item clickable"
+            @click="selectedDetail = tx"
+          >
             <div class="tx-left">
-              <div :class="[
-                'tx-icon',
-                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
-              ]">
+              <div
+                :class="[
+                  'tx-icon',
+                  store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+                ]"
+              >
                 {{ store.getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
@@ -69,10 +84,12 @@
                 </div>
               </div>
             </div>
-            <div :class="[
-              'tx-amount',
-              store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
-            ]">
+            <div
+              :class="[
+                'tx-amount',
+                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+              ]"
+            >
               {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-'
               }}{{ Number(tx.amount).toLocaleString() }}원
             </div>
@@ -89,7 +106,11 @@
       </section>
     </div>
 
-    <DeleteConfirmModal :show="isDeleteModalShow" @confirm="confirmDelete" @cancel="isDeleteModalShow = false" />
+    <DeleteConfirmModal
+      :show="isDeleteModalShow"
+      @confirm="confirmDelete"
+      @cancel="isDeleteModalShow = false"
+    />
   </div>
 </template>
 
@@ -252,10 +273,14 @@ onMounted(async () => {
   background-color: var(--color-bg) !important;
 }
 
+:deep(.vc-highlight) {
+  background-color: #2ac1bc !important;
+}
+
 /* 🔥 버튼 */
 .primary-btn {
   width: 100%;
-  background: var(--color-text-main);
+  background: var(--color-primary);
   color: var(--color-white);
   padding: 18px;
   border-radius: var(--radius-md);
@@ -368,8 +393,8 @@ onMounted(async () => {
 .text-btn {
   background: none;
   border: none;
-  color: var(--color-income);
-  font-weight: 600;
+  color: var(#64748b);
+  font-weight: 500;
   cursor: pointer;
 
   padding: var(--space-xs) 0 0 0;

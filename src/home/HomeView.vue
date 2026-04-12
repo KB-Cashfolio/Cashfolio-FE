@@ -65,7 +65,7 @@
         <div class="section-head">
           <div>
             <h3>최근 거래 내역</h3>
-            <br/>
+            <br />
             <p>최신 순</p>
           </div>
         </div>
@@ -73,7 +73,9 @@
         <div class="transaction-list">
           <div v-for="tx in recentTransactions" :key="tx.id" class="transaction-item">
             <div class="tx-left">
-              <div :class="['tx-icon', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+              <div
+                :class="['tx-icon', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']"
+              >
                 {{ getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
@@ -81,7 +83,9 @@
                 <div class="tx-meta">{{ getCategoryName(tx.category_id) }} · {{ tx.date }}</div>
               </div>
             </div>
-            <div :class="['tx-amount', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']">
+            <div
+              :class="['tx-amount', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']"
+            >
               {{ formatCurrency(tx.amount) }}
             </div>
           </div>
@@ -108,14 +112,14 @@ const isModalOpen = ref(false)
 
 const recentTransactions = computed(() => {
   let list = [...transactions.value]
-  
+
   // 날짜 최신순, 날짜가 같으면 ID 내림차순 정렬
   list.sort((a, b) => {
     const dateDiff = new Date(b.date) - new Date(a.date)
     if (dateDiff !== 0) return dateDiff
-    return b.id - a.id 
+    return b.id - a.id
   })
-  
+
   // 홈 화면이므로 가장 최근 5건만 표시 (원하는 숫자로 조절 가능)
   return list.slice(0, 5)
 })
@@ -143,7 +147,7 @@ const currentMonthLabel = computed(() => {
 onMounted(async () => {
   await fetchHomeData()
   await txStore.fetchCategories()
-  
+
   console.log(transactions.value)
   console.log(summary.value)
 })
@@ -230,7 +234,7 @@ h3 {
 
 .quick-btn {
   border: none;
-  background: var(--color-text-main);
+  background: var(--color-primary);
   color: var(--color-white);
   padding: 14px 18px;
   border-radius: var(--radius-md);
@@ -356,8 +360,8 @@ h3 {
 }
 
 .beggars-panel {
-  background: linear-gradient(180deg, #fffbeb 0%, #fff7ed 100%);
-  border-color: #fde68a;
+  background: #bee8e6;
+  border-color: #bee8e6;
 }
 
 .beggars-card {
@@ -373,7 +377,7 @@ h3 {
 
 .beggars-wrap {
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, #fde68a 0%, #fed7aa 100%);
+  background: linear-gradient(180deg, #e6f0f0 0%, #beeceb 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -394,11 +398,13 @@ h3 {
   margin-top: var(--space-xs);
   font-size: var(--text-sm);
   line-height: 1.4;
-  color: #92400e;
-  background: #fef3c7;
+
+  color: #278582; /* 진한 민트색 글자 */
+  background: #f0faf9; /* 아주 연한 민트 그레이 배경 */
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
   text-align: center;
+  font-style: italic; /* 멘트느낌 살리기 */
 }
 
 .status-wrap {
@@ -425,21 +431,21 @@ h3 {
 
 .status-track {
   height: 10px;
-  background: var(--color-border);
+  background: #beeceb;
 }
 
 .status-track.exp {
-  background: var(--color-warning-bg);
+  background: #beeceb;
 }
 
 .status-bar {
   height: 100%;
-  background: var(--color-text-sub);
+  background: #beeceb;
   border-radius: 999px;
 }
 
 .status-bar.exp {
-  background: var(--color-warning);
+  background: #2ac1bc;
 }
 
 .reward-box {

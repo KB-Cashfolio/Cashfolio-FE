@@ -12,16 +12,20 @@
         <div class="field">
           <label>구분</label>
           <div class="type-selector">
-            <button v-for="item in inandout" :key="item.id" :class="[
-              'type-btn',
-              { active: selectedType === item.id },
-              item.id === '1' ? 'income' : 'expense',
-            ]" @click="selectedType = item.id">
+            <button
+              v-for="item in inandout"
+              :key="item.id"
+              :class="[
+                'type-btn',
+                { active: selectedType === item.id },
+                item.id === '1' ? 'income' : 'expense',
+              ]"
+              @click="selectedType = item.id"
+            >
               {{ item.name }}
             </button>
           </div>
         </div>
-
 
         <div class="field">
           <label>카테고리</label>
@@ -99,7 +103,7 @@ const onSave = async () => {
   const payload = {
     category_id: newTx.category_id,
     amount: newTx.amount,
-    memo: newTx.memo
+    memo: newTx.memo,
   }
 
   const isSuccess = await homeStore.addTransaction(payload)
@@ -240,7 +244,7 @@ onMounted(async () => {
 
 /* 저장 */
 .btn-save {
-  background: var(--color-text-main);
+  background: var(--color-primary);
   color: var(--color-white);
 }
 

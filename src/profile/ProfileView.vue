@@ -11,12 +11,12 @@
       <div v-if="profileStore.loading" class="loading-state">데이터를 불러오는 중...</div>
 
       <div v-else-if="profileStore.user" class="profile-content">
-        <section class="panel">
-          <p class="character-eyebrow" style="color: #1d4ed8">SAVING RANK</p>
-          <div class="character-card" style="background: #f8fafc">
+        <section class="panel" style="background: #bee8e6">
+          <p class="character-eyebrow" style="color: var(--color-text-sub)">SAVING RANK</p>
+          <div class="character-card" style="background: rgba(255, 255, 255, 0.72)">
             <div
               class="avatar-wrap"
-              style="background: linear-gradient(180deg, #e0fffd 0%, #d4fffd 100%)"
+              style="background: linear-gradient(180deg, #e6f0f0 0%, #beeceb 100%)"
             >
               <img
                 v-if="profileStore.character?.img_path"
@@ -33,7 +33,7 @@
               <h3 style="margin-bottom: 4px">
                 {{ profileStore.character?.name || '' }} {{ profileStore.user.username }}
               </h3>
-              <p class="character-desc">
+              <p class="character-desc" style="color: #278582; font-style: italic">
                 "{{ profileStore.character?.ment || '오늘도 절약하며 성장하고 있어요!' }}"
               </p>
 
@@ -98,7 +98,6 @@
                 </div>
               </div>
             </div>
-          
           </div>
         </section>
 
@@ -196,14 +195,14 @@ onMounted(async () => {
 /* 🔥 블루 프로그레스 (커스텀 테마) */
 .blue-track {
   height: 10px;
-  background: var(--color-blue-bg);
+  background: #beeceb;
   border-radius: 999px;
   overflow: hidden;
 }
 
 .blue-bar {
   height: 100%;
-  background: var(--color-accent);
+  background: #2ac1bc;
   border-radius: 999px;
   transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

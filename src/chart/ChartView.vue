@@ -15,19 +15,19 @@
             <p>어디에 가장 많이 {{ chartType === 'expense' ? '썼을까요?' : '벌었을까요?' }}</p>
           </div>
           <div class="toggle-group">
-            <button :class="{ active: chartType === 'expense' }" @click="chartType = 'expense'">지출</button>
-            <button :class="{ active: chartType === 'income' }" @click="chartType = 'income'">수입</button>
+            <button :class="{ active: chartType === 'expense' }" @click="chartType = 'expense'">
+              지출
+            </button>
+            <button :class="{ active: chartType === 'income' }" @click="chartType = 'income'">
+              수입
+            </button>
           </div>
         </div>
 
         <div class="month-navigator">
-          <button class="nav-btn" @click="prevMonth" :disabled="selectedMonth === 0">
-            &lt;
-          </button>
+          <button class="nav-btn" @click="prevMonth" :disabled="selectedMonth === 0">&lt;</button>
           <h2 class="current-month">{{ selectedMonth + 1 }}월</h2>
-          <button class="nav-btn" @click="nextMonth" :disabled="selectedMonth === 11">
-            &gt;
-          </button>
+          <button class="nav-btn" @click="nextMonth" :disabled="selectedMonth === 11">&gt;</button>
         </div>
 
         <div class="chart-wrapper">
@@ -55,14 +55,23 @@
         <div class="mini-card">
           <p class="label">총 {{ chartType === 'expense' ? '지출액' : '수입액' }} (1년)</p>
           <strong :style="{ color: chartType === 'expense' ? '#e11d48' : '#1d4ed8' }">
-            {{ chartType === 'expense' ? totalExpense.toLocaleString() : totalIncome.toLocaleString() }}원
+            {{
+              chartType === 'expense'
+                ? totalExpense.toLocaleString()
+                : totalIncome.toLocaleString()
+            }}원
           </strong>
         </div>
       </div>
     </div>
 
-    <TransactionListModal :show="isModalVisible" :title="`${selectedMonth + 1}월 ${selectedCategory}`"
-      :transactions="selectedTransactions" :type="chartType" @close="isModalVisible = false" />
+    <TransactionListModal
+      :show="isModalVisible"
+      :title="`${selectedMonth + 1}월 ${selectedCategory}`"
+      :transactions="selectedTransactions"
+      :type="chartType"
+      @close="isModalVisible = false"
+    />
   </div>
 </template>
 
@@ -116,8 +125,12 @@ const selectedCategory = ref('')
 const selectedTransactions = ref([])
 
 // ✨ 월 변경 함수
-const prevMonth = () => { if (selectedMonth.value > 0) selectedMonth.value-- }
-const nextMonth = () => { if (selectedMonth.value < 11) selectedMonth.value++ }
+const prevMonth = () => {
+  if (selectedMonth.value > 0) selectedMonth.value--
+}
+const nextMonth = () => {
+  if (selectedMonth.value < 11) selectedMonth.value++
+}
 
 // 데이터 불러오기
 const fetchData = async () => {
@@ -133,8 +146,17 @@ const fetchData = async () => {
     const tempColorMap = {}
     const tempOrderMap = {} // ✨ 순서 맵 임시 변수
 
-    const expColors = ['#e11d48', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
-    const incColors = ['#1d4ed8', '#0ea5e9', '#14b8a6', '#84cc16', '#f59e0b', '#3b82f6', '#10b981', '#8b5cf6']
+    const expColors = ['#2AC1BC', '#4FD1CC', '#7EDBD7', '#AEE8E5', '#D9F5F3']
+    const incColors = [
+      '#1d4ed8',
+      '#0ea5e9',
+      '#14b8a6',
+      '#84cc16',
+      '#f59e0b',
+      '#3b82f6',
+      '#10b981',
+      '#8b5cf6',
+    ]
 
     let expIdx = 0
     let incIdx = 0
@@ -171,10 +193,12 @@ const fetchData = async () => {
       const amount = Number(tx.amount)
       const monthIndex = new Date(tx.date).getMonth()
 
-      if (cat.type_id === '2') { // 지출
+      if (cat.type_id === '2') {
+        // 지출
         expMonthSums[monthIndex] += amount
         expSum += amount
-      } else if (cat.type_id === '1') { // 수입
+      } else if (cat.type_id === '1') {
+        // 수입
         incMonthSums[monthIndex] += amount
         incSum += amount
       }
@@ -204,12 +228,14 @@ const currentCategoryData = computed(() => {
     }
   })
 
-  return Object.entries(sums).map(([name, value]) => ({
-    name,
-    value,
-    // ✨ 차트 데이터 하나하나에 매핑된 고정 색상을 명시적으로 넣어줍니다.
-    itemStyle: { color: categoryColorMap.value[name] }
-  })).sort((a, b) => categoryOrderMap.value[a.name] - categoryOrderMap.value[b.name])
+  return Object.entries(sums)
+    .map(([name, value]) => ({
+      name,
+      value,
+      // ✨ 차트 데이터 하나하나에 매핑된 고정 색상을 명시적으로 넣어줍니다.
+      itemStyle: { color: categoryColorMap.value[name] },
+    }))
+    .sort((a, b) => categoryOrderMap.value[a.name] - categoryOrderMap.value[b.name])
 })
 
 // ✨ 선택된 월의 총액 (차트 가운데 들어갈 금액)
@@ -252,11 +278,18 @@ const handleChartClick = (params) => {
   const targetTypeId = chartType.value === 'expense' ? '2' : '1'
 
   // ✨ 모달 클릭 시, 카테고리뿐만 아니라 "현재 선택된 월"의 내역만 뽑아오도록 조건 추가
-  selectedTransactions.value = allTransactions.value.filter(tx => {
-    const cat = categoryMap.value[tx.category_id]
-    const txMonth = new Date(tx.date).getMonth()
-    return cat && cat.name === params.name && cat.type_id === targetTypeId && txMonth === selectedMonth.value
-  }).sort((a, b) => new Date(b.date) - new Date(a.date))
+  selectedTransactions.value = allTransactions.value
+    .filter((tx) => {
+      const cat = categoryMap.value[tx.category_id]
+      const txMonth = new Date(tx.date).getMonth()
+      return (
+        cat &&
+        cat.name === params.name &&
+        cat.type_id === targetTypeId &&
+        txMonth === selectedMonth.value
+      )
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
 
   isModalVisible.value = true
 }
@@ -276,13 +309,32 @@ const pieChartOption = computed(() => {
       top: '33%', // ✨ 글씨가 3줄이 되었으므로 중심을 살짝 더 위로 올립니다. (38% -> 33%)
       textStyle: {
         rich: {
-          label: { fontSize: 13, color: '#64748b', padding: [0, 0, 4, 0], fontFamily: 'Pretendard', align: 'center' },
+          label: {
+            fontSize: 13,
+            color: '#64748b',
+            padding: [0, 0, 4, 0],
+            fontFamily: 'Pretendard',
+            align: 'center',
+          },
           // ✨ 금액 아래에 여백(padding bottom 8px)을 주어 비교 문구와 살짝 띄웁니다.
-          amount: { fontSize: 20, fontWeight: 800, color: amountColor, padding: [0, 0, 8, 0], fontFamily: 'Pretendard', align: 'center' },
+          amount: {
+            fontSize: 20,
+            fontWeight: 800,
+            color: amountColor,
+            padding: [0, 0, 8, 0],
+            fontFamily: 'Pretendard',
+            align: 'center',
+          },
           // ✨ 새로 추가된 비교 문구의 디자인 (약간 작고 연한 글씨)
-          compare: { fontSize: 12, color: '#94a3b8', fontWeight: 600, fontFamily: 'Pretendard', align: 'center' }
-        }
-      }
+          compare: {
+            fontSize: 12,
+            color: '#94a3b8',
+            fontWeight: 600,
+            fontFamily: 'Pretendard',
+            align: 'center',
+          },
+        },
+      },
     },
     tooltip: {
       trigger: 'item',
@@ -291,7 +343,8 @@ const pieChartOption = computed(() => {
       borderWidth: 1,
       padding: [12, 24],
       borderRadius: 12,
-      extraCssText: 'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);',
+      extraCssText:
+        'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);',
       formatter: (params) => `
         <div style="display: flex; flex-direction: column; gap: 4px; font-family: 'Pretendard', sans-serif; min-width: 140px;">
           <div style="display: flex; align-items: center; gap: 6px;">
@@ -303,7 +356,7 @@ const pieChartOption = computed(() => {
             <span style="font-size: 13px; font-weight: 700; color: ${params.color};">${params.percent}%</span>
           </div>
         </div>
-      `
+      `,
     },
     legend: {
       bottom: '0%',
@@ -313,7 +366,12 @@ const pieChartOption = computed(() => {
       itemGap: 10,
       itemWidth: 12,
       itemHeight: 12,
-      textStyle: { fontSize: 13, color: '#475569', padding: [0, 0, 0, 2], fontFamily: 'Pretendard' }
+      textStyle: {
+        fontSize: 13,
+        color: '#475569',
+        padding: [0, 0, 0, 2],
+        fontFamily: 'Pretendard',
+      },
     },
     series: [
       {
@@ -324,9 +382,12 @@ const pieChartOption = computed(() => {
         padAngle: 5,
         itemStyle: { borderRadius: 10 },
         label: { show: false },
-        data: currentCategoryData.value.length > 0 ? currentCategoryData.value : [{ name: '내역 없음', value: 0, itemStyle: { color: '#f1f5f9' } }],
+        data:
+          currentCategoryData.value.length > 0
+            ? currentCategoryData.value
+            : [{ name: '내역 없음', value: 0, itemStyle: { color: '#f1f5f9' } }],
       },
-    ]
+    ],
   }
 })
 
@@ -347,7 +408,8 @@ const lineChartOption = computed(() => {
       borderWidth: 1,
       padding: [12, 16], // 양옆 여백을 적당히 16px로 조정
       borderRadius: 12,
-      extraCssText: 'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);',
+      extraCssText:
+        'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);',
       formatter: (params) => {
         // axis 트리거는 params가 배열로 들어옵니다. (우리는 선이 1개라 params[0]을 사용)
         const data = params[0]
@@ -363,7 +425,7 @@ const lineChartOption = computed(() => {
             </div>
           </div>
         `
-      }
+      },
     },
 
     xAxis: {

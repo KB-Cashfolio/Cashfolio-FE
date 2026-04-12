@@ -2,7 +2,7 @@
   /* =========================
      🎨 Brand Colors
   ========================= */
-  --color-primary: #795548;
+  --color-primary: #2ac1bc;
   --color-primary-dark: #5d4037;
   --color-primary-light: #a1887f;
   --color-primary-alpha: rgba(121, 85, 72, 0.1);
@@ -11,9 +11,9 @@
      🎯 Base Colors
   ========================= */
   --color-white: #ffffff;
-  --color-bg: #ffffff;           /* 앱 내부 */
-  --color-bg-soft: #f8fafc;      /* 카드/페이지 */
-  --color-bg-outside: #f5f5f5;   /* PC 배경 */
+  --color-bg: #ffffff; /* 앱 내부 */
+  --color-bg-soft: #f8fafc; /* 카드/페이지 */
+  --color-bg-outside: #f5f5f5; /* PC 배경 */
 
   /* =========================
      📝 Text Colors

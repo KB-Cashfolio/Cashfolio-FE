@@ -10,60 +10,35 @@
       <form @submit.prevent="handleSignup" class="signup-form">
         <div class="input-group">
           <label for="email">이메일 주소</label>
-          <input
-            type="email"
-            id="email"
-            v-model="registerForm.email"
-            placeholder="example@gmail.com"
+          <input type="email" id="email" v-model="registerForm.email" placeholder="example@gmail.com"
             :class="{ 'error-border': registerErrors.email, shake: registerShake.email }"
-            @blur="validateRegister('email')"
-            required
-          />
+            @blur="validateRegister('email')" required />
           <p v-if="registerErrors.email" class="error-text">{{ registerErrors.email }}</p>
         </div>
 
         <div class="input-group">
           <label for="phone">전화번호</label>
-          <input
-            type="text"
-            id="phone"
-            v-model="registerForm.phone"
-            placeholder="010-1234-5678"
+          <input type="text" id="phone" v-model="registerForm.phone" placeholder="010-1234-5678"
             :class="{ 'error-border': registerErrors.phone, shake: registerShake.phone }"
-            @blur="validateRegister('phone')"
-            required
-          />
+            @blur="validateRegister('phone')" required />
           <p v-if="registerErrors.phone" class="error-text">{{ registerErrors.phone }}</p>
         </div>
 
         <div class="input-group">
           <label for="password">비밀번호</label>
-          <input
-            type="password"
-            id="password"
-            v-model="registerForm.password"
-            placeholder="8자 이상, 영문/숫자 포함"
+          <input type="password" id="password" v-model="registerForm.password" placeholder="8자 이상, 영문/숫자 포함"
             :class="{ 'error-border': registerErrors.password, shake: registerShake.password }"
-            @blur="validateRegister('password')"
-            required
-          />
+            @blur="validateRegister('password')" required />
           <p v-if="registerErrors.password" class="error-text">{{ registerErrors.password }}</p>
         </div>
 
         <div class="input-group">
           <label for="passwordConfirm">비밀번호 확인</label>
-          <input
-            type="password"
-            id="passwordConfirm"
-            v-model="registerForm.passwordConfirm"
-            placeholder="한 번 더 입력해주세요"
+          <input type="password" id="passwordConfirm" v-model="registerForm.passwordConfirm" placeholder="한 번 더 입력해주세요"
             :class="{
               'error-border': registerErrors.passwordConfirm,
               shake: registerShake.passwordConfirm,
-            }"
-            @blur="validateRegister('passwordConfirm')"
-            required
-          />
+            }" @blur="validateRegister('passwordConfirm')" required />
           <p v-if="registerErrors.passwordConfirm" class="error-text">
             {{ registerErrors.passwordConfirm }}
           </p>
@@ -89,19 +64,44 @@
           {{ isLoading ? '등록 중...' : '거지 라이프 시작' }}
         </button>
       </form>
+
+      <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from './RegisterStore'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import AlertModal from '../../components/AlertModal.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 
-// 🔥 핵심
+// 모달 상태
+const isAlertShow = ref(false)
+const alertMsg = ref('')
+const alertIcon = ref('💡')
+const onAlertClose = ref(null) // 모달이 닫힐 때 실행될 콜백
+
+const showAlert = (message, icon = '💡', onCloseCallback = null) => {
+  alertMsg.value = message
+  alertIcon.value = icon
+  onAlertClose.value = onCloseCallback
+  isAlertShow.value = true
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (typeof onAlertClose.value === 'function') {
+    onAlertClose.value()
+  }
+  onAlertClose.value = null // 콜백 초기화
+}
+
+//  핵심
 const { registerForm, registerErrors, registerShake, isLoading, isRegisterValid } =
   storeToRefs(auth)
 
@@ -124,14 +124,17 @@ const handleSignup = async () => {
 
 <style scoped>
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
   }
+
   20%,
   60% {
     transform: translateX(-5px);
   }
+
   40%,
   80% {
     transform: translateX(5px);
