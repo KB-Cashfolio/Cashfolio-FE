@@ -14,13 +14,7 @@
           <p class="step-desc">거지 세계에서 불릴 닉네임을 정해주세요.</p>
           <div class="input-group">
             <label for="nickname">닉네임</label>
-            <input
-              type="text"
-              id="nickname"
-              v-model="formData.nickname"
-              placeholder="예: 탈출꿈나무"
-              required
-            />
+            <input type="text" id="nickname" v-model="formData.nickname" placeholder="예: 탈출꿈나무" required />
           </div>
         </div>
 
@@ -38,13 +32,7 @@
           <p class="step-desc">정해진 금액을 넘기면 캐릭터가 슬퍼해요.</p>
           <div class="input-group">
             <label for="limit">일별 소비 한도 (원)</label>
-            <input
-              type="number"
-              id="limit"
-              v-model="formData.dailyLimit"
-              placeholder="0"
-              required
-            />
+            <input type="number" id="limit" v-model="formData.dailyLimit" placeholder="0" required />
           </div>
         </div>
 
@@ -57,6 +45,8 @@
           </button>
         </div>
       </form>
+
+      <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
     </div>
   </div>
 </template>
@@ -64,13 +54,34 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { authService } from '@/api/services'
 import api from '@/api/index'
 import { useAuthStore } from '@/login/register/RegisterStore'
+import AlertModal from '@/components/AlertModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const currentStep = ref(1)
+
+// 모달 상태
+const isAlertShow = ref(false)
+const alertMsg = ref('')
+const alertIcon = ref('💡')
+const onAlertClose = ref(null) // 모달이 닫힐 때 실행될 콜백
+
+const showAlert = (message, icon = '💡', onCloseCallback = null) => {
+  alertMsg.value = message
+  alertIcon.value = icon
+  onAlertClose.value = onCloseCallback
+  isAlertShow.value = true
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (typeof onAlertClose.value === 'function') {
+    onAlertClose.value()
+  }
+  onAlertClose.value = null // 콜백 초기화
+}
 
 // 🆕 고정된 ID 대신 현재 회원가입/로그인된 유저의 ID를 가져옴
 const userId = computed(() => authStore.user?.id)
@@ -87,8 +98,9 @@ const handleNext = async () => {
   } else {
     // ⚠️ 가드 로직: ID가 없으면 진행 불가
     if (!userId.value) {
-      alert('유저 세션이 만료되었습니다. 다시 시도해주세요.')
-      router.push('/login')
+      showAlert('유저 세션이 만료되었습니다. 다시 로그인해주세요.', '🚨', () => {
+        router.push('/login')
+      })
       return
     }
     // 2. 최종 데이터 전송
@@ -107,8 +119,7 @@ const handleNext = async () => {
         last_settled_date: todayStr, // 정산 시작점도 오늘로 맞춤
       }
 
-      console.log(updateData)
-      await authService.updateUserInfo(userId.value, updateData) // Axios 통신
+      await api.patch(`/users/${userId.value}`, updateData)
 
       // 2. 🔥 [핵심] 30만원을 '수입' 거래 내역으로 추가
       await api.post('/transactions', {
@@ -124,10 +135,11 @@ const handleNext = async () => {
       authStore.user = updatedUser
       localStorage.setItem('user', JSON.stringify(updatedUser))
 
-      alert('우아한 거지가 되신 것을 축하드립니다! 🎉')
-      router.push('/') // 메인 대시보드로 이동
+      showAlert('우아한 거지가 되신 것을 축하드립니다!', '🎉', () => {
+        router.push('/') // 메인 대시보드로 이동
+      })
     } catch (error) {
-      alert('데이터 저장 중 오류가 발생했습니다.')
+      showAlert('데이터 저장 중 오류가 발생했습니다.', '🚨')
     }
   }
 }
