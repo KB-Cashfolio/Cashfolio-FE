@@ -2,25 +2,28 @@ import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { userService, characterService, transactionService } from '../api/services'
 import { useTransactionStore } from '../transaction-history/TransactionStore'
+import { useAuthStore } from '@/login/register/RegisterStore'
 
 export const useHomeStore = defineStore('Home', () => {
   const summary = reactive({ assets: 0, income: 0, expense: 0 })
   const beggars = reactive({ name: '', level: 1, img_path: '', ment: '', exp: 0 })
   const transactions = ref([])
-
+  const authStore = useAuthStore()
+  
   const formatCurrency = (value) =>
     value !== undefined ? `${new Intl.NumberFormat('ko-KR').format(Number(value))}원` : '0원'
 
-  const getLoginUserId = () => {
-    const userData = localStorage.getItem('user')
-    return userData ? JSON.parse(userData).id : null
+const getLoginUserId = () => {
+    // 1순위: 스토어의 유저 정보, 2순위: 로컬 스토리지
+    return authStore.user?.id || JSON.parse(localStorage.getItem('user'))?.id
   }
 
-  const fetchHomeData = async () => {
+const fetchHomeData = async () => {
     const loginUserId = getLoginUserId()
-
-    // 로그인 정보가 없으면 실행 중단 (임시 유저 로직 제거)
+    
     if (!loginUserId) {
+      // 만약 로그인은 되어있는데 스토어만 비어있는 경우를 대비해 
+      // 여기서 authStore의 유저 정보를 복구하는 로직을 넣으면 더 안전합니다.
       console.warn('로그인한 사용자가 없습니다.')
       return
     }

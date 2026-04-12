@@ -1,12 +1,15 @@
+import api from '@/api/index'
+import { AppError } from '@/utils/AppError'
+import { ERROR_CODES } from '@/utils/errorCodes'
 
 /* =========================
    🔐 인증 서비스
 ========================= */
 export const authService = {
   async login(email, password) {
-    const res = await api.get(
-      `/users?email=${email}&password=${password}`
-    )
+   // email을 소문자로 변환하거나 trim() 처리 추천
+  const res = await api.get(`/users`, { params: { email: email.trim() } });
+  const user = res.data.find(u => u.password === password); // 서버가 아닌 클라이언트에서 한번 더 확인
 
     const users = res.data
 
@@ -18,7 +21,7 @@ export const authService = {
       })
     }
 
-    const user = users[0]
+
     const { password: _, ...userWithoutPassword } = user
 
     localStorage.setItem('user', JSON.stringify(userWithoutPassword))

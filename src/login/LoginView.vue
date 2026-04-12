@@ -90,24 +90,21 @@ const showAlert = (message, icon = '💡') => {
   alertIcon.value = icon
 }
 
-const closeAlert = () => {
-  isAlertShow.value = false
-  if (loginSucceeded.value) {
-    router.push('/')
+const handleLogin = async () => {
+  try {
+    await auth.login(loginForm.value.email, loginForm.value.password)
+    loginSucceeded.value = true
+    showAlert('환영합니다! 👋')
+  } catch (err) {
+    showAlert(err.message)
   }
 }
 
-const handleLogin = async () => {
-  try {
-    await auth.login(email, password)
-
-    showAlert('환영합니다!')
-    setTimeout(() => {
-      router.push('/')
-    }, 1500);
-    
-  } catch (err) {
-    showAlert(err.message)
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (loginSucceeded.value) {
+    // router.push('/') 대신 페이지 전체를 새로고침하며 이동
+    window.location.href = '/' 
   }
 }
 </script>

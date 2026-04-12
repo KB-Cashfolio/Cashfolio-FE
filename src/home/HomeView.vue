@@ -101,6 +101,7 @@ import QuickAddModal from './QuickAddModal.vue'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from './HomeStore'
 import { useTransactionStore } from '../transaction-history/TransactionStore'
+import { useRouter } from 'vue-router' // 1. useRouter 임포트
 
 const store = useHomeStore()
 const txStore = useTransactionStore()
@@ -109,6 +110,7 @@ const { summary, transactions, beggars } = storeToRefs(store)
 const { formatCurrency, fetchHomeData } = store
 const { getCategoryName, getCategoryType } = txStore
 const isModalOpen = ref(false)
+const router = useRouter() // 2. router 인스턴스 생성
 
 const recentTransactions = computed(() => {
   let list = [...transactions.value]
@@ -125,15 +127,12 @@ const recentTransactions = computed(() => {
 })
 
 const handleQuickAdd = () => {
-  // 🆕 'user' 객체가 있는지 확인
   const isLogin = localStorage.getItem('user')
-  console.log(transactions)
   if (!isLogin) {
     alert('로그인이 필요한 서비스입니다.')
-    router.push('/login') // 로그인 페이지로 유도
+    router.push('/login') // 이제 정상 작동합니다.
     return
   }
-
   isModalOpen.value = true
 }
 
