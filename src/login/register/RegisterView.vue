@@ -108,13 +108,16 @@ const { registerForm, registerErrors, registerShake, isLoading, isRegisterValid 
 const { validateRegister, toggleAll, register } = auth
 
 const handleSignup = async () => {
-  const result = await register()
+  try {
+    await register()
 
-  if (result.success) {
     alert('회원가입 성공! 🎉')
-    router.push('/StepperForm')
-  } else {
-    alert(result.message || '회원가입 실패')
+    setTimeout(() => {
+      router.push('/StepperForm')
+    }, 1500);
+    
+  } catch (err) {
+    alert(err.message || '회원가입 실패')
   }
 }
 </script>

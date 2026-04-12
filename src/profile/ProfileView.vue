@@ -161,6 +161,7 @@ onMounted(async () => {
 
     // 2. [핵심] 들어올 때마다 과거 내역 싹 다 훑어서 경험치 맞추기
     await profileStore.recalculateTotalExp(user.id)
+    
   }
 })
 </script>
