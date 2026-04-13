@@ -22,11 +22,11 @@
         <div class="asset-grid">
           <div class="mini-card">
             <p>이번 달 수입</p>
-            <strong>+ {{ formatCurrency(summary.income) }}</strong>
+            <strong class="income-text">+ {{ formatCurrency(summary.income) }}</strong>
           </div>
           <div class="mini-card">
             <p>이번 달 지출</p>
-            <strong>- {{ formatCurrency(summary.expense) }}</strong>
+            <strong class="expense-text">- {{ formatCurrency(summary.expense) }}</strong>
           </div>
         </div>
       </section>
@@ -523,6 +523,13 @@ h3 {
 }
 
 .tx-amount.expense {
+  color: var(--color-expense);
+}
+
+.income-text {
+  color: var(--color-income);
+}
+.expense-text {
   color: var(--color-expense);
 }
 

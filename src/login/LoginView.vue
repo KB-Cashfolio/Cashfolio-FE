@@ -5,7 +5,7 @@
         <div class="character-circle">
           <span class="avatar">👨‍🌾</span>
         </div>
-        <h1 class="logo-text">Cashfolio</h1>
+        <h1 class="logo-text">우아한 거지들</h1>
         <p class="sub-text">한 푼 두 푼 모아 탈출하는 거지 생활</p>
       </header>
 
@@ -81,10 +81,10 @@ const { loginForm, loginErrors, loginShake, isLoading } = storeToRefs(auth)
 
 const isAlertShow = ref(false)
 const alertMsg = ref('')
-const alertIcon = ref('💡')
+const alertIcon = ref('👋')
 const loginSucceeded = ref(false)
 
-const showAlert = (message, icon = '💡') => {
+const showAlert = (message, icon = '👋') => {
   alertMsg.value = message
   isAlertShow.value = true
   alertIcon.value = icon
@@ -94,7 +94,7 @@ const handleLogin = async () => {
   try {
     await auth.login(loginForm.value.email, loginForm.value.password)
     loginSucceeded.value = true
-    showAlert('환영합니다! 👋')
+    showAlert('환영합니다!')
   } catch (err) {
     showAlert(err.message)
   }

@@ -3,9 +3,9 @@ defineProps({
   show: Boolean,
   title: { type: String, default: '정말 삭제하시겠습니까?' },
   description: { type: String, default: '삭제된 데이터는 복구할 수 없습니다.' },
-});
+})
 
-const emit = defineEmits(['confirm', 'cancel']);
+const emit = defineEmits(['confirm', 'cancel'])
 </script>
 
 <template>
@@ -39,7 +39,7 @@ const emit = defineEmits(['confirm', 'cancel']);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 2000;
   padding: 20px;
 }
 

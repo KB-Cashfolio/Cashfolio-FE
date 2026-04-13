@@ -65,7 +65,7 @@ const formatAmount = (amount) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 2000;
   padding: 20px;
 }
 .modal-panel {

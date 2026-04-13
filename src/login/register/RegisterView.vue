@@ -10,35 +10,60 @@
       <form @submit.prevent="handleSignup" class="signup-form">
         <div class="input-group">
           <label for="email">이메일 주소</label>
-          <input type="email" id="email" v-model="registerForm.email" placeholder="example@gmail.com"
+          <input
+            type="email"
+            id="email"
+            v-model="registerForm.email"
+            placeholder="example@gmail.com"
             :class="{ 'error-border': registerErrors.email, shake: registerShake.email }"
-            @blur="validateRegister('email')" required />
+            @blur="validateRegister('email')"
+            required
+          />
           <p v-if="registerErrors.email" class="error-text">{{ registerErrors.email }}</p>
         </div>
 
         <div class="input-group">
           <label for="phone">전화번호</label>
-          <input type="text" id="phone" v-model="registerForm.phone" placeholder="010-1234-5678"
+          <input
+            type="text"
+            id="phone"
+            v-model="registerForm.phone"
+            placeholder="010-1234-5678"
             :class="{ 'error-border': registerErrors.phone, shake: registerShake.phone }"
-            @blur="validateRegister('phone')" required />
+            @blur="validateRegister('phone')"
+            required
+          />
           <p v-if="registerErrors.phone" class="error-text">{{ registerErrors.phone }}</p>
         </div>
 
         <div class="input-group">
           <label for="password">비밀번호</label>
-          <input type="password" id="password" v-model="registerForm.password" placeholder="8자 이상, 영문/숫자 포함"
+          <input
+            type="password"
+            id="password"
+            v-model="registerForm.password"
+            placeholder="8자 이상, 영문/숫자 포함"
             :class="{ 'error-border': registerErrors.password, shake: registerShake.password }"
-            @blur="validateRegister('password')" required />
+            @blur="validateRegister('password')"
+            required
+          />
           <p v-if="registerErrors.password" class="error-text">{{ registerErrors.password }}</p>
         </div>
 
         <div class="input-group">
           <label for="passwordConfirm">비밀번호 확인</label>
-          <input type="password" id="passwordConfirm" v-model="registerForm.passwordConfirm" placeholder="한 번 더 입력해주세요"
+          <input
+            type="password"
+            id="passwordConfirm"
+            v-model="registerForm.passwordConfirm"
+            placeholder="한 번 더 입력해주세요"
             :class="{
               'error-border': registerErrors.passwordConfirm,
               shake: registerShake.passwordConfirm,
-            }" @blur="validateRegister('passwordConfirm')" required />
+            }"
+            @blur="validateRegister('passwordConfirm')"
+            required
+          />
           <p v-if="registerErrors.passwordConfirm" class="error-text">
             {{ registerErrors.passwordConfirm }}
           </p>
@@ -114,8 +139,7 @@ const handleSignup = async () => {
     alert('회원가입 성공! 🎉')
     setTimeout(() => {
       router.push('/StepperForm')
-    }, 1500);
-    
+    }, 1500)
   } catch (err) {
     alert(err.message || '회원가입 실패')
   }
@@ -124,7 +148,6 @@ const handleSignup = async () => {
 
 <style scoped>
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -253,5 +276,42 @@ const handleSignup = async () => {
   background: var(--color-border);
   color: var(--color-text-muted);
   cursor: not-allowed;
+}
+
+/* 🔥 인풋 폰트 스타일 수정 (도현체 탈출 및 가독성 확보) */
+.input-group input {
+  height: 48px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+
+  /* 1. 입력창은 가독성이 중요하므로 Pretendard 적용 */
+  font-family: 'Pretendard', sans-serif !important;
+  font-size: var(--text-md);
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* 2. 비밀번호 점(●)이 잘 보이도록 자간 조절 */
+.input-group input[type='password'] {
+  letter-spacing: 0.12em;
+}
+
+/* 3. 힌트 텍스트(placeholder) 폰트도 통일 */
+.input-group input::placeholder {
+  font-family: 'Pretendard', sans-serif !important;
+  font-size: var(--text-sm);
+}
+
+/* 🔥 포커스 UX 강화 */
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  box-shadow: 0 0 0 2px var(--color-primary-alpha);
 }
 </style>
