@@ -46,6 +46,14 @@ watchEffect(() => {
 </template>
 
 <style>
+@font-face {
+  font-family: 'BaeminJua'; /* 내가 정한 폰트 이름 */
+  src:
+    url('@/assets/fonts/BMJUA.woff2') format('woff2'),
+    url('@/assets/fonts/BMJUA.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 body {
   margin: 0;
   background-color: var(--color-bg-outside);

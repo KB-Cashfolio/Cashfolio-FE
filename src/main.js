@@ -10,6 +10,7 @@ import 'v-calendar/style.css'
 // CSS 파일 로드 (변수 -> 공통 스타일)
 import '@/assets/css/variables.css'
 import '@/assets/css/login.css'
+import '@/assets/css/global.css'
 
 const app = createApp(App)
 

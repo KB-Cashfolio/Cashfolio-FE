@@ -33,7 +33,7 @@
             :class="{ 'error-border': loginErrors.password, shake: loginShake.password }"
             @blur="auth.validateLogin('password')"
           />
-          <p v-if="loginErrors.password">{{ loginErrors.password }}</p>
+          <p v-if="loginErrors.password" class="error-text">{{ loginErrors.password }}</p>
         </div>
 
         <div class="form-options">
@@ -103,13 +103,28 @@ const handleLogin = async () => {
 const closeAlert = () => {
   isAlertShow.value = false
   if (loginSucceeded.value) {
-    // router.push('/') 대신 페이지 전체를 새로고침하며 이동
-    window.location.href = '/' 
+    window.location.href = '/'
   }
 }
 </script>
 
 <style scoped>
+/* 🔥 입력창 폰트 긴급 수정 (도현체 탈출) */
+input {
+  /* 입력할 때는 글자가 잘 보여야 하므로 Pretendard 적용 */
+  font-family: 'Pretendard', sans-serif !important;
+}
+
+input[type='password'] {
+  /* 비밀번호 점(●)이 뭉치지 않게 자간 조절 */
+  letter-spacing: 0.1em;
+}
+
+input::placeholder {
+  /* 힌트 텍스트도 깔끔하게 */
+  font-family: 'Pretendard', sans-serif !important;
+}
+
 /* 🔥 흔들림 애니메이션 */
 @keyframes shake {
   0%,
@@ -178,6 +193,35 @@ const closeAlert = () => {
   gap: var(--space-lg);
 }
 
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.input-group input {
+  height: 50px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-primary-alpha);
+}
+
 /* 옵션 영역 */
 .form-options {
   display: flex;
@@ -218,7 +262,6 @@ const closeAlert = () => {
 .login-btn:active {
   transform: scale(0.98);
 }
-
 .login-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -230,7 +273,6 @@ const closeAlert = () => {
   text-align: center;
 }
 
-/* 구분선 */
 .divider {
   position: relative;
   margin-bottom: var(--space-lg);
@@ -248,7 +290,6 @@ const closeAlert = () => {
   color: var(--color-text-guide);
 }
 
-/* 🔥 소셜 로그인 */
 .social-links {
   display: flex;
   justify-content: center;
@@ -267,11 +308,6 @@ const closeAlert = () => {
   transition: transform 0.1s ease;
 }
 
-.social-btn:active {
-  transform: scale(0.95);
-}
-
-/* 회원가입 유도 */
 .signup-prompt {
   font-size: var(--text-md);
   color: var(--color-text-sub);

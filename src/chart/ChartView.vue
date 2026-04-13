@@ -146,16 +146,19 @@ const fetchData = async () => {
     const tempColorMap = {}
     const tempOrderMap = {} // ✨ 순서 맵 임시 변수
 
-    const expColors = ['#2AC1BC', '#4FD1CC', '#7EDBD7', '#AEE8E5', '#D9F5F3']
+    const expColors = [
+      '#7F1D1D', // 가장 진한 (딥 레드)
+      '#DC2626', // 중간 (선명한 레드)
+      '#EF4444', // 기준 (메인 레드)
+      '#FCA5A5', // 밝은 레드
+      '#FEE2E2', // 아주 연한
+    ]
     const incColors = [
-      '#1d4ed8',
-      '#0ea5e9',
-      '#14b8a6',
-      '#84cc16',
-      '#f59e0b',
-      '#3b82f6',
-      '#10b981',
-      '#8b5cf6',
+      '#0F766E', // 가장 진한 (딥 민트)
+      '#14B8A6', // 중간 (선명)
+      '#2AC1BC', // 기준 컬러
+      '#5EEAD4', // 밝은 민트
+      '#CCFBF1',
     ]
 
     let expIdx = 0
