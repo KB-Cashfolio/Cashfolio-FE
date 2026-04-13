@@ -14,7 +14,13 @@
           <p class="step-desc">거지 세계에서 불릴 닉네임을 정해주세요.</p>
           <div class="input-group">
             <label for="nickname">닉네임</label>
-            <input type="text" id="nickname" v-model="formData.nickname" placeholder="예: 탈출꿈나무" required />
+            <input
+              type="text"
+              id="nickname"
+              v-model="formData.nickname"
+              placeholder="예: 탈출꿈나무"
+              required
+            />
           </div>
         </div>
 
@@ -32,7 +38,13 @@
           <p class="step-desc">정해진 금액을 넘기면 캐릭터가 슬퍼해요.</p>
           <div class="input-group">
             <label for="limit">일별 소비 한도 (원)</label>
-            <input type="number" id="limit" v-model="formData.dailyLimit" placeholder="0" required />
+            <input
+              type="number"
+              id="limit"
+              v-model="formData.dailyLimit"
+              placeholder="0"
+              required
+            />
           </div>
         </div>
 
@@ -277,11 +289,68 @@ const handleNext = async () => {
 
 /* hover */
 .auth-submit-btn:hover {
-  background: var(--color-primary-dark);
+  background: #e2e8f0;
+  color: #475569;
 }
 
 /* active */
 .auth-submit-btn:active {
   transform: scale(0.97);
+}
+/* 1. 전체 뷰 수정 */
+.page-view {
+  width: 90%;
+  height: 100dvh; /* 높이 고정 */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 중앙 대신 위쪽 정렬로 변경 (내용 많을 때 대비) */
+  background-color: var(--color-bg);
+  padding: 20px;
+  overflow-y: auto; /* 넘치면 내부에서 스크롤 */
+}
+
+/* 2. 컨테이너 수정 */
+.page-container {
+  width: 90%;
+  max-width: var(--max-width-mobile);
+  margin-top: 20px; /* 상단 여백 살짝 추가 */
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  padding: 32px 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  /* height: auto; 상태 유지 */
+}
+
+/* 3. 인풋 필드 폰트 적용 (도현체 방지) */
+input {
+  width: 90%;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-family: 'Pretendard', sans-serif !important; /* 폰트 강제 적용 */
+  font-size: var(--text-md);
+  margin-top: 8px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+}
+
+/* 4. 스텝 콘텐츠 영역 간격 조절 */
+.step-content {
+  min-height: 180px; /* 단계 이동 시 높이 변화로 인한 덜덜거림 방지 */
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group {
+  margin-top: auto; /* 인풋을 아래쪽으로 밀어서 배치 안정화 */
+  margin-bottom: 20px;
 }
 </style>
