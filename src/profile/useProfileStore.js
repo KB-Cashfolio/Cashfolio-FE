@@ -33,7 +33,7 @@ export const useProfileStore = defineStore('profile', {
           this.character = beggarsRes.data.find((b) => Number(b.level) === userLevel)
         }
       } catch (err) {
-        console.error('데이터 로드 실패:', err)
+        handleClientError(err)
       } finally {
         this.loading = false
       }
@@ -89,7 +89,7 @@ export const useProfileStore = defineStore('profile', {
           }
         }
       } catch (err) {
-        console.error('경험치 업데이트 실패:', err)
+        handleClientError(err)
       } finally {
         this.loading = false
       }

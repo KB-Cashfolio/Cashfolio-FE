@@ -56,7 +56,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get(`/transactions?user_id=${userData.id}`)
       transactions.value = res.data
     } catch (err) {
-      console.error('거래내역 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -66,7 +66,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/inandout')
       inandout.value = res.data
     } catch (err) {
-      console.error('공통코드 로드 실패', err)
+      handleClientError(err)
     }
   }
 
@@ -76,7 +76,7 @@ export const useTransactionStore = defineStore('transaction', () => {
       const res = await api.get('/category')
       categories.value = res.data
     } catch (err) {
-      console.error('카테고리 로드 실패', err)
+      handleClientError(err)
     }
   }
 

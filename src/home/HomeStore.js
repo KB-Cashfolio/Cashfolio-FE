@@ -98,7 +98,7 @@ const fetchHomeData = async () => {
 
       console.log('데이터 로드 완료 (사용자:', loginUserId, ')')
     } catch (err) {
-      console.error('데이터 로드 실패:', err)
+      handleClientError(err)
     }
   }
 
@@ -144,7 +144,7 @@ const fetchHomeData = async () => {
 
       return true
     } catch (err) {
-      console.error('거래 추가 실패:', err)
+      handleClientError(err)
       return false
     }
   }
