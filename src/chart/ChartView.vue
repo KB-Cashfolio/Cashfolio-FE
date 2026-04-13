@@ -144,38 +144,34 @@ const fetchData = async () => {
 
     const tempMap = {}
     const tempColorMap = {}
-    const tempOrderMap = {} // ✨ 순서 맵 임시 변수
+    const tempOrderMap = {}
 
-    const expColors = [
-      '#7F1D1D', // 가장 진한 (딥 레드)
-      '#DC2626', // 중간 (선명한 레드)
-      '#EF4444', // 기준 (메인 레드)
-      '#FCA5A5', // 밝은 레드
-      '#FEE2E2', // 아주 연한
-    ]
-    const incColors = [
-      '#0F766E', // 가장 진한 (딥 민트)
-      '#14B8A6', // 중간 (선명)
-      '#2AC1BC', // 기준 컬러
-      '#5EEAD4', // 밝은 민트
-      '#CCFBF1',
-    ]
+    const expColors = ['#7F1D1D', '#DC2626', '#EF4444', '#FCA5A5', '#FEE2E2']
+    const incColors = ['#0F766E', '#14B8A6', '#2AC1BC', '#5EEAD4', '#CCFBF1']
 
     let expIdx = 0
     let incIdx = 0
-    let orderIdx = 0 // ✨ 전체 카테고리 순서를 매길 변수
+    let orderIdx = 0
 
     catRes.data.forEach((cat) => {
       tempMap[cat.id] = cat
 
-      // ✨ 서버에서 받아온 카테고리 순서대로 고유 번호를 부여합니다.
-      tempOrderMap[cat.name] = orderIdx++
+      // ✨ 수정: 이름(name)이 아닌 고유 ID를 키값으로 사용합니다. (이름 충돌 방지)
+      tempOrderMap[cat.id] = orderIdx++
+
+      // (선택 사항) '기타' 카테고리만 수입/지출 상관없이 고정된 회색빛으로 빼고 싶다면 아래 주석을 활용하세요.
+      /*
+      if (cat.name === '기타') {
+        tempColorMap[cat.id] = cat.type_id === '2' ? '#94A3B8' : '#CBD5E1' 
+        return // 기타는 전용 색상을 주고 건너뜁니다.
+      }
+      */
 
       if (cat.type_id === '2') {
-        tempColorMap[cat.name] = expColors[expIdx % expColors.length]
+        tempColorMap[cat.id] = expColors[expIdx % expColors.length]
         expIdx++
       } else if (cat.type_id === '1') {
-        tempColorMap[cat.name] = incColors[incIdx % incColors.length]
+        tempColorMap[cat.id] = incColors[incIdx % incColors.length]
         incIdx++
       }
     })
@@ -184,6 +180,7 @@ const fetchData = async () => {
     categoryColorMap.value = tempColorMap
     categoryOrderMap.value = tempOrderMap
 
+    // ... (이하 expMonthSums 등 합산 로직은 기존과 동일하게 유지) ...
     const expMonthSums = new Array(12).fill(0)
     const incMonthSums = new Array(12).fill(0)
     let incSum = 0
@@ -197,11 +194,9 @@ const fetchData = async () => {
       const monthIndex = new Date(tx.date).getMonth()
 
       if (cat.type_id === '2') {
-        // 지출
         expMonthSums[monthIndex] += amount
         expSum += amount
       } else if (cat.type_id === '1') {
-        // 수입
         incMonthSums[monthIndex] += amount
         incSum += amount
       }
@@ -219,7 +214,7 @@ const fetchData = async () => {
 // ✨ 선택된 월(selectedMonth)과 토글 상태(chartType)에 맞는 도넛 차트 데이터 실시간 계산
 const currentCategoryData = computed(() => {
   const targetTypeId = chartType.value === 'expense' ? '2' : '1'
-  const sums = {}
+  const sums = {} // 이제 이곳의 키는 id가 됩니다.
 
   allTransactions.value.forEach((tx) => {
     const cat = categoryMap.value[tx.category_id]
@@ -227,18 +222,22 @@ const currentCategoryData = computed(() => {
 
     const txMonth = new Date(tx.date).getMonth()
     if (txMonth === selectedMonth.value) {
-      sums[cat.name] = (sums[cat.name] || 0) + Number(tx.amount)
+      // ✨ 수정: 이름(name) 대신 ID(cat.id)를 기준으로 금액을 합산합니다.
+      if (!sums[cat.id]) {
+        sums[cat.id] = { id: cat.id, name: cat.name, value: 0 }
+      }
+      sums[cat.id].value += Number(tx.amount)
     }
   })
 
-  return Object.entries(sums)
-    .map(([name, value]) => ({
-      name,
-      value,
-      // ✨ 차트 데이터 하나하나에 매핑된 고정 색상을 명시적으로 넣어줍니다.
-      itemStyle: { color: categoryColorMap.value[name] },
+  // ✨ 수정: Object.values를 통해 배열로 변환하고 ID를 기반으로 색상과 순서를 찾습니다.
+  return Object.values(sums)
+    .map((item) => ({
+      name: item.name,
+      value: item.value,
+      itemStyle: { color: categoryColorMap.value[item.id] },
     }))
-    .sort((a, b) => categoryOrderMap.value[a.name] - categoryOrderMap.value[b.name])
+    .sort((a, b) => categoryOrderMap.value[a.id] - categoryOrderMap.value[b.id])
 })
 
 // ✨ 선택된 월의 총액 (차트 가운데 들어갈 금액)
