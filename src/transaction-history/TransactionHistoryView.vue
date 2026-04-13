@@ -32,12 +32,16 @@
           </div>
           <div class="detail-row">
             <span class="label">카테고리</span
-            ><span class="badge">{{ selectedDetail.category }}</span>
+            ><span class="badge">{{ store.getCategoryName(selectedDetail.category_id) }}</span>
           </div>
           <div class="detail-row">
             <span class="label">금액</span>
-            <strong :class="selectedDetail.inandout_id === 'in' ? 'income' : 'expense'">
-              {{ selectedDetail.inandout_id === 'in' ? '+' : '-' }}
+            <strong
+              :class="
+                store.getCategoryType(selectedDetail.category_id) === '1' ? 'income' : 'expense'
+              "
+            >
+              {{ store.getCategoryType(selectedDetail.category_id) === '1' ? '+' : '-' }}
               {{ Number(selectedDetail.amount).toLocaleString() }}원
             </strong>
           </div>
@@ -47,8 +51,8 @@
         </div>
 
         <div class="modal-btns mt-20">
-          <button class="btn-cancel" @click="openDeleteModal(selectedDetail.id)">삭제</button>
           <button class="btn-save" @click="goToUpdate(selectedDetail)">수정</button>
+          <button class="btn-cancel" @click="openDeleteModal(selectedDetail.id)">삭제</button>
         </div>
       </section>
 
@@ -65,16 +69,29 @@
             @click="selectedDetail = tx"
           >
             <div class="tx-left">
-              <div :class="['tx-icon', tx.inandout_id === 'in' ? 'income' : 'expense']">
-                {{ tx.inandout_id === 'in' ? '↗' : '↘' }}
+              <div
+                :class="[
+                  'tx-icon',
+                  store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+                ]"
+              >
+                {{ store.getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
                 <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ tx.category }} · {{ tx.date }}</div>
+                <div class="tx-meta">
+                  {{ store.getCategoryName(tx.category_id) }} · {{ tx.date }}
+                </div>
               </div>
             </div>
-            <div :class="['tx-amount', tx.inandout_id === 'in' ? 'income' : 'expense']">
-              {{ tx.inandout_id === 'in' ? '+' : '-' }}{{ Number(tx.amount).toLocaleString() }}원
+            <div
+              :class="[
+                'tx-amount',
+                store.getCategoryType(tx.category_id) === '1' ? 'income' : 'expense',
+              ]"
+            >
+              {{ store.getCategoryType(tx.category_id) === '1' ? '+' : '-'
+              }}{{ Number(tx.amount).toLocaleString() }}원
             </div>
           </div>
 
@@ -101,6 +118,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTransactionStore } from './TransactionStore'
+import { useProfileStore } from '../profile/useProfileStore'
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue'
 import { handleClientError } from '@/utils/errorHandler'
 
@@ -108,7 +126,7 @@ const store = useTransactionStore()
 const router = useRouter()
 
 const selectedDate = ref(new Date())
-const isFiltering = ref(false)
+const isFiltering = ref(true)
 const selectedDetail = ref(null)
 const isDeleteModalShow = ref(false)
 const targetDeleteId = ref(null)
@@ -179,43 +197,61 @@ async function confirmDelete() {
 
 onMounted(async () => {
   await store.fetchTransactions()
+  if (store.categories.length === 0) {
+    await store.fetchCategories()
+  }
+
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    const user = JSON.parse(userData)
+    const profileStore = useProfileStore() // 프로필 스토어 가져오기
+
+    // 유저 정보(daily_limit, last_settled_date)를 최신화한 뒤 정산 실행
+    await profileStore.fetchUserProfile(user.id)
+    await profileStore.recalculateTotalExp(user.id)
+  }
 })
 </script>
 
+<style scoped src="../assets/css/transaction.css"></style>
 <style scoped>
 .page {
   width: 100%;
   min-height: 100vh;
-  background: #f8fafc;
-  padding: 20px;
+  background: var(--color-bg);
+  padding: var(--space-lg);
 }
+
 .container {
-  max-width: 430px;
+  max-width: var(--max-width-mobile);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-.panel {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 28px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-}
-.calendar-panel {
-  padding: 10px;
+  gap: var(--space-md);
 }
 
+/* 🔥 패널 */
+.panel {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendar-panel {
+  padding: var(--space-sm);
+}
+
+/* 🔥 캘린더 override (라이브러리) */
 :deep(.vc-container) {
   background: transparent !important;
   border: none !important;
 }
 
-/* 캘린더 헤더(월, 년도 및 화살표) 배경색 제거 */
 :deep(.vc-header) {
   background-color: transparent !important;
-  margin-top: 10px;
+  margin-top: var(--space-sm);
 }
 
 :deep(.vc-title) {
@@ -232,107 +268,144 @@ onMounted(async () => {
 
 :deep(.vc-title:hover),
 :deep(.vc-arrow:hover) {
-  background-color: #f1f5f9 !important;
+  background-color: var(--color-bg) !important;
 }
+
+:deep(.vc-highlight) {
+  background-color: #2ac1bc !important;
+}
+
+/* 🔥 버튼 */
 .primary-btn {
   width: 100%;
-  background: #0f172a;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-white);
   padding: 18px;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   border: none;
   font-weight: 700;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
+  transition: transform 0.1s ease;
 }
+
+.primary-btn:active {
+  transform: scale(0.98);
+}
+
+/* 🔥 거래 아이템 */
 .transaction-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8fafc;
-  border-radius: 18px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
   padding: 14px 16px;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
   cursor: pointer;
+  transition: transform 0.1s ease;
 }
+
+.transaction-item:active {
+  transform: scale(0.98);
+}
+
 .tx-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-sm);
 }
+
 .tx-icon {
   width: 42px;
   height: 42px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
 }
+
+/* 🔥 수입 / 지출 시스템 */
 .tx-icon.income {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--color-income-bg);
+  color: var(--color-income);
 }
+
 .tx-icon.expense {
-  background: #ffe4e6;
-  color: #e11d48;
+  background: var(--color-expense-bg);
+  color: var(--color-error);
 }
+
 .tx-amount {
   font-weight: 800;
+  font-size: var(--text-md);
 }
+
 .income {
-  color: #1d4ed8;
+  color: var(--color-income);
 }
+
 .expense {
-  color: #e11d48;
+  color: var(--color-error);
 }
+
+/* 🔥 상세 row */
 .detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-bg);
 }
+
+/* 🔥 모달 버튼 */
 .modal-btns {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
 }
+
 .btn-cancel {
   flex: 1;
   padding: 16px;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   border: none;
-  background: #ffe4e6;
-  color: #e11d48;
+  background: var(--color-expense-bg);
+  color: var(--color-error);
   font-weight: 700;
   cursor: pointer;
 }
+
 .btn-save {
   flex: 2;
   padding: 16px;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   border: none;
-  background: #0f172a;
-  color: white;
+  background: var(--color-text-main);
+  color: var(--color-white);
   font-weight: 700;
   cursor: pointer;
 }
+
+/* 🔥 텍스트 버튼 */
 .text-btn {
   background: none;
   border: none;
-  color: #3b82f6;
-  font-weight: 600;
+  color: var(#64748b);
+  font-weight: 500;
   cursor: pointer;
 
-  padding: 10px 0 0 0;
-  margin: 0 0 16px 0;
+  padding: var(--space-xs) 0 0 0;
+  margin: 0 0 var(--space-md) 0;
 
   display: block;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
+
+/* 🔥 닫기 버튼 */
 .close-btn {
-  background: #f1f5f9;
+  background: var(--color-bg);
   border: none;
   width: 30px;
   height: 30px;
@@ -343,11 +416,13 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
 }
+
+/* 🔥 섹션 헤더 */
 .section-head {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
 }
 </style>

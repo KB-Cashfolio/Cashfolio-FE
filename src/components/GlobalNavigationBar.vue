@@ -25,33 +25,21 @@ const goBack = () => {
   <header class="safe-header">
     <div class="header-section left">
       <button @click="goBack" class="nav-btn">
-        <svg
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-        >
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
     </div>
 
     <div class="header-section center">
-      <h1 class="title">Cashfolio</h1>
+      <RouterLink to="/" class="title-link" @click="closeMenu">
+        <h1 class="title">우아한 거지들</h1>
+      </RouterLink>
     </div>
 
     <div class="header-section right">
       <button @click="toggleMenu" class="nav-btn">
-        <svg
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-        >
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -62,10 +50,8 @@ const goBack = () => {
     <transition name="slide">
       <nav v-if="isMenuOpen" class="dropdown-menu">
         <RouterLink to="/" @click="closeMenu" class="menu-link">홈</RouterLink>
-        <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link"
-          >거래내역</RouterLink
-        >
-        <RouterLink to="/updateTx" @click="closeMenu" class="menu-link">거래 내역 등록</RouterLink>
+        <RouterLink to="/transaction-history" @click="closeMenu" class="menu-link">거래내역</RouterLink>
+        <RouterLink to="/chart" @click="closeMenu" class="menu-link">소비 리포트</RouterLink>
         <RouterLink to="/profile" @click="closeMenu" class="menu-link">프로필</RouterLink>
       </nav>
     </transition>
@@ -73,7 +59,6 @@ const goBack = () => {
 </template>
 
 <style scoped>
-/* 기존 디자인 그대로 유지 */
 .safe-header {
   padding-top: env(safe-area-inset-top);
   height: calc(56px + env(safe-area-inset-top));
@@ -81,7 +66,7 @@ const goBack = () => {
   align-items: center;
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border-bottom: 0.5px solid #e0e0e0;
+  border-bottom: 0.5px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -102,57 +87,61 @@ const goBack = () => {
 }
 
 .title {
-  font-size: 17px;
+  font-size: var(--text-md);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-text-main);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.title-link {
+  text-decoration: none;
+}
+
 .nav-btn {
   background: none;
   border: none;
-  padding: 12px;
-  color: #333;
+  padding: var(--space-md);
+  color: var(--color-text-sub);
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s ease;
 }
 
 .nav-btn:active {
   opacity: 0.3;
 }
 
-/* --- 메뉴 전용 스타일 추가 --- */
+/* 🔥 드롭다운 메뉴 */
 
 .dropdown-menu {
   position: absolute;
-  top: 100%; /* 헤더 바로 아래 붙음 */
+  top: 100%;
   left: 0;
   width: 100%;
-  background-color: white;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .menu-link {
-  padding: 16px 20px;
+  padding: var(--space-md) var(--space-lg);
   text-decoration: none;
-  color: #333;
-  font-size: 15px;
-  border-bottom: 0.5px solid #f5f5f5;
+  color: var(--color-text-main);
+  font-size: var(--text-md);
+  border-bottom: 0.5px solid var(--color-bg);
 }
 
 .menu-link:last-child {
   border-bottom: none;
 }
 
-/* 애니메이션 (위에서 아래로 스르륵) */
+/* 🔥 애니메이션 (슬라이드) */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease-out;

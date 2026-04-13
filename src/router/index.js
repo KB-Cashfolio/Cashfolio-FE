@@ -6,6 +6,7 @@ import LoginView from '@/login/LoginView.vue'
 import RegisterView from '@/login/register/RegisterView.vue'
 import StepperForm from '@/login/register/StepperForm.vue'
 import TransactionsView from '@/transaction-history/TransactionsView.vue'
+import ChartView from '@/chart/ChartView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,11 @@ const router = createRouter({
       path: '/transaction-history',
       name: 'transaction-history',
       component: TransactionHistoryView,
+    },
+    {
+      path: '/chart',
+      name: 'chart',
+      component: ChartView,
     },
     {
       path: '/updateTx',

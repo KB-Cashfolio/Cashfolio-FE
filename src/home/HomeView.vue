@@ -22,11 +22,11 @@
         <div class="asset-grid">
           <div class="mini-card">
             <p>이번 달 수입</p>
-            <strong>+ {{ formatCurrency(summary.income) }}</strong>
+            <strong class="income-text">+ {{ formatCurrency(summary.income) }}</strong>
           </div>
           <div class="mini-card">
             <p>이번 달 지출</p>
-            <strong>- {{ formatCurrency(summary.expense) }}</strong>
+            <strong class="expense-text">- {{ formatCurrency(summary.expense) }}</strong>
           </div>
         </div>
       </section>
@@ -65,23 +65,28 @@
         <div class="section-head">
           <div>
             <h3>최근 거래 내역</h3>
+            <br />
             <p>최신 순</p>
           </div>
         </div>
 
         <div class="transaction-list">
-          <div v-for="tx in transactions" :key="tx.id" class="transaction-item">
+          <div v-for="tx in recentTransactions" :key="tx.id" class="transaction-item">
             <div class="tx-left">
-              <div :class="['tx-icon', tx.inandout_id === 'in' ? 'income' : 'expense']">
-                {{ tx.inandout_id === 'in' ? '↗' : '↘' }}
+              <div
+                :class="['tx-icon', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']"
+              >
+                {{ getCategoryType(tx.category_id) === '1' ? '↗' : '↘' }}
               </div>
               <div>
                 <div class="tx-title">{{ tx.memo }}</div>
-                <div class="tx-meta">{{ tx.category }} · {{ tx.date }}</div>
+                <div class="tx-meta">{{ getCategoryName(tx.category_id) }} · {{ tx.date }}</div>
               </div>
             </div>
-            <div :class="['tx-amount', tx.inandout_id === 'in' ? 'income' : 'expense']">
-              {{ tx.inandout_id === 'in' ? '+' : '-' }}{{ formatCurrency(tx.amount) }}
+            <div
+              :class="['tx-amount', getCategoryType(tx.category_id) === '1' ? 'income' : 'expense']"
+            >
+              {{ formatCurrency(tx.amount) }}
             </div>
           </div>
         </div>
@@ -95,24 +100,39 @@ import { computed, ref, onMounted } from 'vue'
 import QuickAddModal from './QuickAddModal.vue'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from './HomeStore'
+import { useTransactionStore } from '../transaction-history/TransactionStore'
+import { useRouter } from 'vue-router' // 1. useRouter 임포트
 
 const store = useHomeStore()
+const txStore = useTransactionStore()
 
 const { summary, transactions, beggars } = storeToRefs(store)
 const { formatCurrency, fetchHomeData } = store
-
+const { getCategoryName, getCategoryType } = txStore
 const isModalOpen = ref(false)
+const router = useRouter() // 2. router 인스턴스 생성
+
+const recentTransactions = computed(() => {
+  let list = [...transactions.value]
+
+  // 날짜 최신순, 날짜가 같으면 ID 내림차순 정렬
+  list.sort((a, b) => {
+    const dateDiff = new Date(b.date) - new Date(a.date)
+    if (dateDiff !== 0) return dateDiff
+    return b.id - a.id
+  })
+
+  // 홈 화면이므로 가장 최근 5건만 표시 (원하는 숫자로 조절 가능)
+  return list.slice(0, 5)
+})
 
 const handleQuickAdd = () => {
-  // 🆕 'user' 객체가 있는지 확인
   const isLogin = localStorage.getItem('user')
-
   if (!isLogin) {
     alert('로그인이 필요한 서비스입니다.')
-    router.push('/login') // 로그인 페이지로 유도
+    router.push('/login') // 이제 정상 작동합니다.
     return
   }
-
   isModalOpen.value = true
 }
 
@@ -125,9 +145,12 @@ const currentMonthLabel = computed(() => {
 
 onMounted(async () => {
   await fetchHomeData()
+  await txStore.fetchCategories()
+
+  console.log(transactions.value)
+  console.log(summary.value)
 })
 </script>
-
 <style scoped>
 * {
   box-sizing: border-box;
@@ -136,18 +159,18 @@ onMounted(async () => {
 .page {
   width: 100%;
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--color-bg);
   padding: 20px;
-  color: #0f172a;
+  color: var(--color-text-main);
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
 .container {
-  max-width: 430px;
+  max-width: var(--max-width-mobile);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-lg);
 }
 
 .header,
@@ -161,7 +184,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .top-align {
@@ -170,19 +193,19 @@ onMounted(async () => {
 
 .eyebrow,
 .beggars-eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
+  margin: 0 0 var(--space-xs);
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .eyebrow {
-  color: #64748b;
+  color: var(--color-text-sub);
 }
 
 .beggars-eyebrow {
-  color: #b45309;
+  color: var(--color-warning);
 }
 
 h1,
@@ -193,49 +216,49 @@ p {
 }
 
 h1 {
-  font-size: 30px;
+  font-size: var(--text-2xl);
   line-height: 1.2;
 }
 
 h2 {
-  margin-top: 8px;
-  font-size: 32px;
+  margin-top: var(--space-xs);
+  font-size: var(--text-3xl);
   line-height: 1.2;
 }
 
 h3 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   line-height: 1.3;
 }
 
 .quick-btn {
   border: none;
-  background: #0f172a;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
   padding: 14px 18px;
-  border-radius: 18px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--shadow-md);
 }
 
 .panel,
 .asset-panel,
 .beggars-panel {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 28px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .panel,
 .beggars-panel {
-  padding: 20px;
+  padding: var(--space-lg);
 }
 
 .asset-panel {
-  padding: 22px;
+  padding: var(--space-xl);
 }
 
 .label,
@@ -244,36 +267,36 @@ h3 {
 .mission-reward,
 .tx-meta,
 .meta-row span {
-  color: #64748b;
+  color: var(--color-text-sub);
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 .icon-box {
   width: 46px;
   height: 46px;
-  border-radius: 16px;
-  background: #f1f5f9;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  color: #334155;
+  color: var(--color-text-sub);
 }
 
 .asset-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 
 .mini-card {
-  background: #f8fafc;
-  border-radius: 20px;
-  padding: 16px;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
 }
 
 .mini-card p,
@@ -282,13 +305,13 @@ h3 {
 .mission-reward,
 .section-head p,
 .beggars-desc {
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 
 .mini-card strong {
   display: block;
-  margin-top: 6px;
-  font-size: 18px;
+  margin-top: var(--space-xs);
+  font-size: var(--text-lg);
   font-weight: 800;
 }
 
@@ -297,14 +320,14 @@ h3 {
 .mission-badge {
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 700;
   white-space: nowrap;
 }
 
 .badge {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--color-bg);
+  color: var(--color-text-sub);
 }
 
 .progress-track,
@@ -316,152 +339,148 @@ h3 {
 
 .progress-track {
   height: 12px;
-  background: #e2e8f0;
-  margin-top: 14px;
+  background: var(--color-border);
+  margin-top: var(--space-md);
 }
 
 .progress-bar {
   height: 100%;
-  background: #0f172a;
+  background: var(--color-text-main);
   border-radius: 999px;
 }
 
 .meta-row {
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: var(--space-md);
+  font-size: var(--text-md);
 }
 
 .meta-row strong {
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 .beggars-panel {
-  background: linear-gradient(180deg, #fffbeb 0%, #fff7ed 100%);
-  border-color: #fde68a;
+  background: #bee8e6;
+  border-color: #bee8e6;
 }
 
 .beggars-card {
-  margin-top: 16px;
+  margin-top: var(--space-md);
   display: grid;
   grid-template-columns: 96px 1fr;
-  gap: 14px;
+  gap: var(--space-md);
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 26px;
-  padding: 16px;
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
 }
 
 .beggars-wrap {
-  border-radius: 24px;
-  background: linear-gradient(180deg, #fde68a 0%, #fed7aa 100%);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, #e6f0f0 0%, #beeceb 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: var(--space-sm);
 }
 
 .beggars {
   font-size: 52px;
-  line-height: 1;
 }
 
 .beggars-img {
   width: 100%;
-  height: auto;
   max-width: 60px;
   object-fit: contain;
 }
 
 .beggars-ment {
-  margin-top: 8px;
-  font-size: 13px;
+  margin-top: var(--space-xs);
+  font-size: var(--text-sm);
   line-height: 1.4;
-  color: #92400e;
-  background: #fef3c7;
-  padding: 8px 12px;
-  border-radius: 12px;
-  font-style: italic;
+
+  color: #278582; /* 진한 민트색 글자 */
+  background: #f0faf9; /* 아주 연한 민트 그레이 배경 */
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
   text-align: center;
+  font-style: italic; /* 멘트느낌 살리기 */
 }
 
 .status-wrap {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   margin-top: 25px;
-  width: 100%;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .status-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .status-label-row span,
 .status-label-row strong {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
 .status-label-row span {
-  color: #475569;
+  color: var(--color-text-sub);
 }
 
 .status-track {
   height: 10px;
-  background: #e2e8f0;
+  background: #beeceb;
 }
 
 .status-track.exp {
-  background: #ffedd5;
+  background: #beeceb;
 }
 
 .status-bar {
   height: 100%;
-  background: #334155;
+  background: #beeceb;
   border-radius: 999px;
 }
 
 .status-bar.exp {
-  background: #f59e0b;
+  background: #2ac1bc;
 }
 
 .reward-box {
-  margin-top: 14px;
+  margin-top: var(--space-md);
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
 }
 
 .reward-title {
   font-weight: 700;
-  color: #334155;
-  margin-bottom: 6px;
+  color: var(--color-text-sub);
+  margin-bottom: var(--space-xs);
 }
 
 .mission-list,
 .transaction-list {
-  margin-top: 14px;
+  margin-top: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .mission-item,
 .transaction-item {
-  background: #f8fafc;
-  border-radius: 18px;
-  padding: 14px 16px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
 }
 
 .mission-title,
 .tx-title {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text-main);
 }
 
 .mission-badge.done {
@@ -470,14 +489,14 @@ h3 {
 }
 
 .mission-badge.doing {
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--color-border);
+  color: var(--color-text-sub);
 }
 
 .tx-icon {
   width: 42px;
   height: 42px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -485,26 +504,33 @@ h3 {
 }
 
 .tx-icon.income {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--color-income-bg);
+  color: var(--color-income);
 }
 
 .tx-icon.expense {
-  background: #ffe4e6;
-  color: #e11d48;
+  background: var(--color-expense-bg);
+  color: var(--color-expense);
 }
 
 .tx-amount {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: 800;
 }
 
 .tx-amount.income {
-  color: #1d4ed8;
+  color: var(--color-income);
 }
 
 .tx-amount.expense {
-  color: #e11d48;
+  color: var(--color-expense);
+}
+
+.income-text {
+  color: var(--color-income);
+}
+.expense-text {
+  color: var(--color-expense);
 }
 
 @media (max-width: 420px) {
@@ -513,7 +539,7 @@ h3 {
   }
 
   .container {
-    gap: 14px;
+    gap: var(--space-md);
   }
 
   h1 {
@@ -526,10 +552,6 @@ h3 {
 
   .beggars-card {
     grid-template-columns: 1fr;
-  }
-
-  .asset-grid {
-    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

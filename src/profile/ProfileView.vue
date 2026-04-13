@@ -11,12 +11,12 @@
       <div v-if="profileStore.loading" class="loading-state">데이터를 불러오는 중...</div>
 
       <div v-else-if="profileStore.user" class="profile-content">
-        <section class="panel">
-          <p class="character-eyebrow" style="color: #1d4ed8">SAVING RANK</p>
-          <div class="character-card" style="background: #f8fafc">
+        <section class="panel" style="background: #bee8e6">
+          <p class="character-eyebrow" style="color: var(--color-text-sub)">SAVING RANK</p>
+          <div class="character-card" style="background: rgba(255, 255, 255, 0.72)">
             <div
               class="avatar-wrap"
-              style="background: linear-gradient(180deg, #e0fffd 0%, #d4fffd 100%)"
+              style="background: linear-gradient(180deg, #e6f0f0 0%, #beeceb 100%)"
             >
               <img
                 v-if="profileStore.character?.img_path"
@@ -33,7 +33,7 @@
               <h3 style="margin-bottom: 4px">
                 {{ profileStore.character?.name || '' }} {{ profileStore.user.username }}
               </h3>
-              <p class="character-desc">
+              <p class="character-desc" style="color: #278582; font-style: italic">
                 "{{ profileStore.character?.ment || '오늘도 절약하며 성장하고 있어요!' }}"
               </p>
 
@@ -89,17 +89,13 @@
                 </div>
               </div>
             </div>
-
-            <div v-for="acc in profileStore.accounts" :key="acc.id" class="transaction-item">
+            <div class="transaction-item">
               <div class="tx-left">
-                <div class="tx-icon income">🏦</div>
+                <div class="tx-icon">💵</div>
                 <div>
-                  <p class="tx-title">{{ acc.bank }}</p>
-                  <p class="tx-meta">{{ acc.acc_num }}</p>
+                  <p class="tx-title">일일 소비 한도</p>
+                  <p class="tx-meta">{{ profileStore.user.daily_limit }}원</p>
                 </div>
-              </div>
-              <div class="tx-right" style="text-align: right">
-                <p class="tx-amount">{{ Number(acc.balance).toLocaleString() }}원</p>
               </div>
             </div>
           </div>
@@ -107,7 +103,7 @@
 
         <div style="margin-top: 30px">
           <button
-            @click="handleLogout"
+            @click="openLogoutModal"
             class="quick-btn"
             style="width: 100%; background: #e2e8f0; color: #475569; box-shadow: none"
           >
@@ -116,13 +112,19 @@
         </div>
       </div>
     </div>
+    <LogoutConfirmModal
+      :show="isLogoutModalVisible"
+      @confirm="confirmLogout"
+      @cancel="cancelLogout"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from './useProfileStore'
+import LogoutConfirmModal from '../components/LogoutConfirmModal.vue'
 
 const router = useRouter()
 // 🔥 템플릿에서 'profileStore'를 사용하기 위해 반드시 변수 선언!
@@ -131,80 +133,106 @@ const profileStore = useProfileStore()
 const formatCurrency = (value) =>
   value !== undefined ? `${new Intl.NumberFormat('ko-KR').format(value)}원` : '0원'
 
-const handleLogout = () => {
-  if (confirm('로그아웃 하시겠습니까?')) {
-    profileStore.clearUser()
-    localStorage.clear()
-    router.push('/login')
-  }
+const isLogoutModalVisible = ref(false)
+
+const openLogoutModal = () => {
+  isLogoutModalVisible.value = true
 }
 
-onMounted(() => {
+const confirmLogout = () => {
+  profileStore.clearUser()
+  localStorage.clear()
+  // 런치스크린을 다시 표시하기 위해 세션 기록을 삭제
+  sessionStorage.removeItem('hasSeenLaunchScreen')
+  window.location.href = '/login'
+}
+const cancelLogout = () => {
+  isLogoutModalVisible.value = false
+}
+
+onMounted(async () => {
   const userData = localStorage.getItem('user')
   if (userData) {
     const user = JSON.parse(userData)
-    profileStore.fetchUserProfile(user.id)
-  } else {
-    router.push('/login')
+
+    // 1. 기본 정보 및 카테고리 로드
+    await profileStore.fetchUserProfile(user.id)
+
+    // 2. [핵심] 들어올 때마다 과거 내역 싹 다 훑어서 경험치 맞추기
+    await profileStore.recalculateTotalExp(user.id)
+    
   }
 })
 </script>
 
 <style scoped src="../assets/css/transaction.css"></style>
 <style scoped>
-/* 1. 페이지 전체 배경색 변경 */
+/* 🔥 페이지 테마 */
 .page {
-  background: #f9ffff !important; /* !important를 사용해 공용 설정보다 우선순위를 높입니다 */
+  background: var(--color-bg-soft);
 }
 
-/* 2. mini-card 및 category-card 배경색 흰색으로 변경 & 테두리 추가 */
+/* 🔥 카드 공통 스타일 */
 .mini-card,
 .transaction-item,
 .category-card {
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0; /* profile card와 비슷한 느낌의 테두리 추가 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); /* 은은한 그림자로 입체감 부여 */
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
 
-/* 3. 파란색 프로그레스 바 전용 스타일 (지난 대화 내용 유지) */
+/* 인터랙션 */
+.mini-card:active,
+.transaction-item:active,
+.category-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-card-active);
+}
+
+/* 🔥 블루 프로그레스 (커스텀 테마) */
 .blue-track {
   height: 10px;
-  background: #eff6ff;
+  background: #beeceb;
   border-radius: 999px;
   overflow: hidden;
 }
 
 .blue-bar {
   height: 100%;
-  background: #60e2dc;
+  background: #2ac1bc;
   border-radius: 999px;
   transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* 🔥 프로필 이미지 */
 .profile-img-inner {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
+/* 🔥 로딩 상태 */
 .loading-state {
   text-align: center;
-  padding: 80px 0;
-  color: #64748b;
+  padding: var(--space-2xl) 0;
+  color: var(--color-text-sub);
+  font-size: var(--text-md);
 }
 
-/* 아바타 텍스트 위치 및 강조 */
+/* 🔥 아바타 */
 .avatar-wrap {
   position: relative;
-  border: 2px solid #dbeafe; /* 아바타 테두리도 살짝 강조 */
+  border: 2px solid var(--color-accent-soft);
 }
 
 .avatar-text {
   position: absolute;
   bottom: 8px;
   font-weight: 800;
+  font-size: var(--text-sm);
+  color: var(--color-text-main);
 }
 </style>

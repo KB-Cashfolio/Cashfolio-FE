@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'BaeminDohyeon';
+  src: url('@/assets/fonts/BMDOHYEON_otf.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+* {
+  font-family: 'BaeminDohyeon', 'Pretendard', sans-serif !important;
+}

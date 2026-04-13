@@ -93,7 +93,7 @@ h3 {
 
 .quick-btn {
   border: none;
-  background: #0f172a;
+  background: var(--color-primary);
   color: #fff;
   padding: 14px 18px;
   border-radius: 18px;
@@ -475,4 +475,37 @@ input[type='number'] {
   text-align: right;
   font-weight: 600;
   color: #0f172a;
+}
+
+.type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background-color: #f1f5f9;
+  padding: 5px;
+  border-radius: 16px;
+}
+
+.type-btn {
+  border: none;
+  background: transparent;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #64748b;
+}
+
+.type-btn.active.income {
+  background-color: #3b82f6; /* 파란색 */
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.type-btn.active.expense {
+  background-color: #ef4444; /* 빨간색 */
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }

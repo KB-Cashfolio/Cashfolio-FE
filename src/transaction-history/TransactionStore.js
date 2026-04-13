@@ -1,16 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '../api/index.js'
-import { handleClientError } from '@/utils/errorHandler.js'
+import api from '../api/index'
+import { userService } from '../api/services'
 
 export const useTransactionStore = defineStore('transaction', () => {
   // --- State (상태) ---
   const transactions = ref([]) // 거래내역
   const inandout = ref([]) // 수입, 지출
-  const accounts = ref([]) // 계좌 정보
   const categories = ref([]) // 카테고리 정보
-  const banks = ref([]) // 은행 정보
-
   const currentSort = ref('date') // 현재 조회 정렬 방식
 
   // --- Getters (계산된 상태) ---
@@ -25,21 +22,9 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   })
 
-  // 계좌 은행명과 계좌번호 뒤 4자리
-  const getAccountName = computed(() => {
-    return (id) => {
-      const account = accounts.value.find((a) => a.id === String(id))
-      if (!account) return '알 수 없는 계좌'
-
-      const bank = banks.value.find((b) => b.id === account.bank_id)
-      const bankName = bank ? bank.abbr_name : account.bank_id
-
-      return `${bankName} - ${account.acc_num.slice(-4)}`
-    }
-  })
-
   // 카테고리 이름 가져오기 (추가)
   const getCategoryName = computed(() => {
+
     return (categoryId) => {
       const found = categories.value.find((c) => c.id === String(categoryId))
       return found ? found.name : '기타'
@@ -63,8 +48,12 @@ export const useTransactionStore = defineStore('transaction', () => {
 
   // 거래 내역 가져오기
   const fetchTransactions = async () => {
+    const userData = JSON.parse(localStorage.getItem('user'))
+    if (!userData) return
+
     try {
-      const res = await api.get('/transactions')
+      // 🆕 API 호출 시 user_id를 쿼리 스트링으로 전달하여 내 것만 가져옴
+      const res = await api.get(`/transactions?user_id=${userData.id}`)
       transactions.value = res.data
     } catch (err) {
       handleClientError(err)
@@ -81,16 +70,6 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   }
 
-  // 계좌 정보 가져오기
-  const fetchAccounts = async () => {
-    try {
-      const res = await api.get('/accounts')
-      accounts.value = res.data
-    } catch (err) {
-      handleClientError(err)
-    }
-  }
-
   // 카테고리 정보 가져오기 (추가)
   const fetchCategories = async () => {
     try {
@@ -101,51 +80,75 @@ export const useTransactionStore = defineStore('transaction', () => {
     }
   }
 
-  // 은행 정보 가져오기
-  const fetchBanks = async () => {
-    try {
-      const res = await api.get('/bank')
-      banks.value = res.data
-    } catch (err) {
-      handleClientError(err)
-    }
-  }
-
   // 거래 내역 추가
   const addTransaction = async (payload) => {
     await api.post('/transactions', payload)
     await fetchTransactions() // 저장 후 목록 갱신
+    await syncUserTotal() // 추가된 후 유저 합계 업데이트
   }
 
   // 거래 내역 업데이트
   const updateTransaction = async (id, payload) => {
     await api.put(`/transactions/${id}`, payload)
     await fetchTransactions()
+    await syncUserTotal() // 추가된 후 유저 합계 업데이트
   }
 
   // 거래 내역 삭제
   const deleteTransaction = async (id) => {
     await api.delete(`/transactions/${id}`)
     await fetchTransactions()
+    await syncUserTotal() // 🔥 삭제 후 유저 합계 업데이트
+  }
+
+  // --- 유틸리티: 유저의 누적 수입/지출 재계산 및 서버 저장 ---
+  const syncUserTotal = async () => {
+    const userData = JSON.parse(localStorage.getItem('user'))
+    if (!userData) return
+
+    // 1. 현재 모든 거래 내역을 바탕으로 합계 계산
+    const totalIncome = transactions.value
+      .filter((tx) => {
+        // 🔥 핵심: getCategoryType은 computed이므로 .value를 붙여서 내부 함수에 접근해야 합니다!
+        const type = getCategoryType.value(tx.category_id)
+        return type === '1' // 수입 판별
+      })
+      .reduce((sum, tx) => sum + Number(tx.amount), 0)
+
+    const totalExpense = transactions.value
+      .filter((tx) => {
+        // 🔥 마찬가지로 .value를 통해 '타입 판별 함수'를 가져와서 호출합니다.
+        const type = getCategoryType.value(tx.category_id)
+        return type === '2' // 지출 판별
+      })
+      .reduce((sum, tx) => sum + Number(tx.amount), 0)
+
+    try {
+      // 2. 서버의 users 데이터 업데이트
+      const res = await userService.updateAccount(userData.id, {
+        total_income: totalIncome,
+        total_expense: totalExpense,
+      })
+
+      // 3. 로컬 스토리지 정보 갱신 (프로필 페이지 로드 시 최신값 유지 위해)
+      localStorage.setItem('user', JSON.stringify(res.data))
+    } catch (err) {
+      console.error('유저 누적 데이터 동기화 실패', err)
+    }
   }
 
   return {
     transactions,
     inandout,
-    accounts,
     categories,
-    banks,
     currentSort,
     displayTransactions,
-    getAccountName,
     getCategoryName,
     getCategoryType,
     setSort,
     fetchTransactions,
     fetchInAndOut,
-    fetchAccounts,
     fetchCategories,
-    fetchBanks,
     addTransaction,
     updateTransaction,
     deleteTransaction,

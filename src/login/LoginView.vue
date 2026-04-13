@@ -5,7 +5,7 @@
         <div class="character-circle">
           <span class="avatar">👨‍🌾</span>
         </div>
-        <h1 class="logo-text">Cashfolio</h1>
+        <h1 class="logo-text">우아한 거지들</h1>
         <p class="sub-text">한 푼 두 푼 모아 탈출하는 거지 생활</p>
       </header>
 
@@ -33,7 +33,7 @@
             :class="{ 'error-border': loginErrors.password, shake: loginShake.password }"
             @blur="auth.validateLogin('password')"
           />
-          <p v-if="loginErrors.password">{{ loginErrors.password }}</p>
+          <p v-if="loginErrors.password" class="error-text">{{ loginErrors.password }}</p>
         </div>
 
         <div class="form-options">
@@ -62,34 +62,70 @@
           아직 거지가 아니신가요? <router-link to="/register">회원가입</router-link>
         </p>
       </footer>
+      <AlertModal :show="isAlertShow" :message="alertMsg" :icon="alertIcon" @close="closeAlert" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/login/register/RegisterStore'
+import AlertModal from '../components/AlertModal.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
 
 const { loginForm, loginErrors, loginShake, isLoading } = storeToRefs(auth)
 
-const handleLogin = async () => {
-  const result = await auth.login()
+const isAlertShow = ref(false)
+const alertMsg = ref('')
+const alertIcon = ref('👋')
+const loginSucceeded = ref(false)
 
-  if (result.success) {
-    alert('환영합니다!')
-    router.push('/')
-  } else {
-    alert(result.message)
+const showAlert = (message, icon = '👋') => {
+  alertMsg.value = message
+  isAlertShow.value = true
+  alertIcon.value = icon
+}
+
+const handleLogin = async () => {
+  try {
+    await auth.login(loginForm.value.email, loginForm.value.password)
+    loginSucceeded.value = true
+    showAlert('환영합니다!')
+  } catch (err) {
+    showAlert(err.message)
+  }
+}
+
+const closeAlert = () => {
+  isAlertShow.value = false
+  if (loginSucceeded.value) {
+    window.location.href = '/'
   }
 }
 </script>
 
 <style scoped>
-/* 흔들림 애니메이션 */
+/* 🔥 입력창 폰트 긴급 수정 (도현체 탈출) */
+input {
+  /* 입력할 때는 글자가 잘 보여야 하므로 Pretendard 적용 */
+  font-family: 'Pretendard', sans-serif !important;
+}
+
+input[type='password'] {
+  /* 비밀번호 점(●)이 뭉치지 않게 자간 조절 */
+  letter-spacing: 0.1em;
+}
+
+input::placeholder {
+  /* 힌트 텍스트도 깔끔하게 */
+  font-family: 'Pretendard', sans-serif !important;
+}
+
+/* 🔥 흔들림 애니메이션 */
 @keyframes shake {
   0%,
   100% {
@@ -109,55 +145,91 @@ const handleLogin = async () => {
   animation: shake 0.4s ease-in-out;
 }
 
-/* 에러 테두리 */
+/* 🔥 에러 상태 */
 .error-border {
   border-color: var(--color-error) !important;
-  background-color: #fff5f5 !important;
+  background-color: rgba(239, 68, 68, 0.08) !important;
 }
 
 .error-text {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-error);
-  margin-top: 4px;
+  margin-top: var(--space-xs);
   text-align: left;
   padding-left: 4px;
 }
 
-/* 기존 스타일 유지 */
+/* 🔥 캐릭터 */
 .character-circle {
   width: 80px;
   height: 80px;
-  background: #f1f5f9;
+  background: var(--color-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 15px;
+  margin: 0 auto var(--space-md);
   font-size: 40px;
   border: 2px solid var(--color-primary);
 }
 
+/* 🔥 로고 */
 .logo-text {
-  font-size: 28px;
+  font-size: var(--text-xl);
   font-weight: 800;
   color: var(--color-text-main);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
 }
+
 .sub-text {
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-sub);
 }
+
+/* 🔥 폼 */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-lg);
 }
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.input-group input {
+  height: 50px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-primary-alpha);
+}
+
+/* 옵션 영역 */
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
+
 .remember-me {
   display: flex;
   align-items: center;
@@ -165,53 +237,66 @@ const handleLogin = async () => {
   color: var(--color-text-sub);
   cursor: pointer;
 }
+
 .find-pw {
   color: var(--color-text-sub);
   text-decoration: none;
 }
 
+/* 🔥 로그인 버튼 */
 .login-btn {
   height: 55px;
   background: var(--color-primary);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 16px;
+  font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s;
-  margin-top: 10px;
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease;
+  margin-top: var(--space-sm);
 }
 
+.login-btn:active {
+  transform: scale(0.98);
+}
 .login-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* 🔥 하단 */
 .login-footer {
-  margin-top: 40px;
+  margin-top: var(--space-xl);
   text-align: center;
 }
+
 .divider {
   position: relative;
-  margin-bottom: 25px;
+  margin-bottom: var(--space-lg);
   border-top: 1px solid var(--color-border);
 }
+
 .divider span {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--color-white);
-  padding: 0 15px;
-  font-size: 12px;
+  padding: 0 var(--space-md);
+  font-size: var(--text-xs);
   color: var(--color-text-guide);
 }
+
 .social-links {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
+
 .social-btn {
   width: 45px;
   height: 45px;
@@ -220,11 +305,14 @@ const handleLogin = async () => {
   background: var(--color-white);
   font-weight: bold;
   cursor: pointer;
+  transition: transform 0.1s ease;
 }
+
 .signup-prompt {
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-sub);
 }
+
 .signup-prompt a {
   color: var(--color-primary);
   font-weight: 700;

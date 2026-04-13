@@ -1,0 +1,56 @@
+/* 공통 페이지 레이아웃 */
+.page-view {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--color-bg);
+  padding: 20px;
+}
+
+/* 공통 컨테이너 카드 */
+.page-container {
+  width: 100%;
+  min-height: 70%;
+  max-width: var(--max-width-mobile);
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  padding: 40px 30px;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+/* 공통 입력창 스타일 */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.input-group input {
+  height: 50px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  transition: all 0.2s ease;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  box-shadow: 0 0 0 4px var(--color-primary-alpha);
+}
